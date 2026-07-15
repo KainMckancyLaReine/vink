@@ -48,17 +48,13 @@
 *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
 html,body{height:100%;}
 html{
-  background:#101012;
-  display:flex;
-  align-items:center;
-  justify-content:center;
+  background:var(--bg);
 }
 body{
   margin:0;
-  width:402px;
-  max-width:100vw;
-  height:874px;
-  max-height:100vh;
+  width:100%;
+  height:100vh;
+  height:100dvh;
   background:var(--bg);
   color:var(--text);
   font-family:var(--font-body);
@@ -67,7 +63,6 @@ body{
   flex-direction:column;
   position:relative;
   isolation:isolate;
-  box-shadow:0 0 0 1px rgba(0,0,0,0.04), 0 40px 100px rgba(0,0,0,0.35);
   letter-spacing:-0.1px;
 }
 body::before, body::after{
@@ -97,10 +92,25 @@ body::after{
   0%,100%{ transform:translate(0,0) scale(1); }
   50%{ transform:translate(-20px,26px) scale(1.08); }
 }
-/* Op een breder scherm (desktop) tonen we 'm als een afgeronde telefoon-mockup.
-   Op een echt toestel (viewport <= 402px) blijft alles edge-to-edge, geen clipping. */
+/* Op een breder scherm (desktop) tonen we 'm als een afgeronde telefoon-mockup, gecentreerd
+   met een donkere achtergrond errond. Op een echt toestel (viewport <= 402px) blijft alles
+   volledig edge-to-edge / fullscreen, zonder enige uitsparing of donkere randen. */
 @media (min-width:403px){
-  body{ border-radius:46px; overflow:hidden; }
+  html{
+    background:#101012;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  body{
+    width:402px;
+    height:874px;
+    max-width:100vw;
+    max-height:100vh;
+    border-radius:46px;
+    overflow:hidden;
+    box-shadow:0 0 0 1px rgba(0,0,0,0.04), 0 40px 100px rgba(0,0,0,0.35);
+  }
 }
 button{font-family:inherit; cursor:pointer;}
 button:active{transform:scale(0.94);}
