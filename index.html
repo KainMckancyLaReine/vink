@@ -122,6 +122,8 @@ button{transition:transform .18s var(--ease-spring);}
 }
 .scroll{
   flex:1;
+  display:flex;
+  flex-direction:column;
   overflow-y:auto;
   -webkit-overflow-scrolling:touch;
   padding:0 20px 130px;
@@ -184,9 +186,14 @@ button{transition:transform .18s var(--ease-spring);}
 .empty{
   text-align:center;
   color:var(--sub);
-  margin-top:70px;
   font-size:15px;
   line-height:1.6;
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  padding-bottom:60px;
 }
 .empty .big{display:flex; justify-content:center; margin-bottom:12px; animation:floaty 3s ease-in-out infinite; color:var(--orange);}
 .empty .big svg{width:46px; height:46px;}
@@ -1019,7 +1026,7 @@ li.task.done .t-text{color:var(--sub); text-decoration:line-through; font-weight
       if(currentFilter === 'done') return t.done;
       return true;
     });
-    emptyEl.style.display = filtered.length === 0 ? 'block' : 'none';
+    emptyEl.style.display = filtered.length === 0 ? 'flex' : 'none';
     if(tasks.length > 0 && filtered.length === 0){
       emptyEl.innerHTML = '<span class="big"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>Geen taken in dit filter.';
 } else if(tasks.length === 0){
