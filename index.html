@@ -8,7 +8,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Vink.">
 <meta name="theme-color" content="#FFFFFF">
-<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='24' fill='%23FF7A00'/%3E%3Cpath d='M27 52l14 14 32-32' stroke='white' stroke-width='10' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='a' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23FFC93C'/%3E%3Cstop offset='1' stop-color='%23FF9A1F'/%3E%3C/linearGradient%3E%3ClinearGradient id='b' x1='0' y1='1' x2='1' y2='0'%3E%3Cstop offset='0' stop-color='%23FF7A1A'/%3E%3Cstop offset='1' stop-color='%23FF4D1C'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' rx='24' fill='white'/%3E%3Cpolygon points='18,40 34,40 46,66 30,66' fill='url(%23a)'/%3E%3Cpolygon points='32,66 46,66 84,20 70,20' fill='url(%23b)'/%3E%3C/svg%3E">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='c' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23FFC93C'/%3E%3Cstop offset='1' stop-color='%23FF9A1F'/%3E%3C/linearGradient%3E%3ClinearGradient id='d' x1='0' y1='1' x2='1' y2='0'%3E%3Cstop offset='0' stop-color='%23FF7A1A'/%3E%3Cstop offset='1' stop-color='%23FF4D1C'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpolygon points='18,40 34,40 46,66 30,66' fill='url(%23c)'/%3E%3Cpolygon points='32,66 46,66 84,20 70,20' fill='url(%23d)'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -739,6 +740,23 @@ li.task.done .t-text{color:var(--sub); text-decoration:line-through; font-weight
 
     <!-- Logged out -->
     <div id="authSection" style="display:none;">
+      <div style="display:flex; align-items:center; justify-content:center; gap:9px; margin:8px 0 22px;">
+        <svg viewBox="0 0 100 100" width="34" height="34">
+          <defs>
+            <linearGradient id="logoGradA" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#FFC93C"/>
+              <stop offset="1" stop-color="#FF9A1F"/>
+            </linearGradient>
+            <linearGradient id="logoGradB" x1="0" y1="1" x2="1" y2="0">
+              <stop offset="0" stop-color="#FF7A1A"/>
+              <stop offset="1" stop-color="#FF4D1C"/>
+            </linearGradient>
+          </defs>
+          <polygon points="18,40 34,40 46,66 30,66" fill="url(#logoGradA)"/>
+          <polygon points="32,66 46,66 84,20 70,20" fill="url(#logoGradB)"/>
+        </svg>
+        <span style="font-family:var(--font-display); font-size:26px; font-weight:800; letter-spacing:-0.6px; color:var(--text);">Vink</span>
+      </div>
       <div class="field-label" id="authModeLabel">Inloggen</div>
       <div class="field-card">
         <div class="field-row"><input type="text" id="authEmail" placeholder="E-mailadres" autocomplete="email" autocapitalize="off"></div>
