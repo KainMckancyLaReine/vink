@@ -1,0 +1,61 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    function friendshipId(a, b) {
+      return a < b ? a + '_' + b : b + '_' + a;
+    }
+    function isFriend(otherUid) {
+      return exists(/databases/$(database)/documents/friendships/$(friendshipId(request.auth.uid, otherUid)));
+    }
+
+    // Public-ish profile info (email + naam), nodig om vrienden te kunnen opzoeken.
+    match /users/{uid} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn() && request.auth.uid == uid;
+    }
+
+    // De echte taken: alleen jijzelf of een geaccepteerde vriend mag lezen.
+    match /userTasks/{uid} {
+      allow read: if isSignedIn() && (request.auth.uid == uid || isFriend(uid));
+      allow write: if isSignedIn() && request.auth.uid == uid;
+    }
+
+    // Vriendschapsverzoeken
+    match /friendRequests/{id} {
+      allow create: if isSignedIn() && request.resource.data.fromUid == request.auth.uid;
+      allow read: if isSignedIn() && (resource.data.fromUid == request.auth.uid || resource.data.toUid == request.auth.uid);
+      allow update: if isSignedIn() && resource.data.toUid == request.auth.uid;
+      allow delete: if isSignedIn() && (resource.data.fromUid == request.auth.uid || resource.data.toUid == request.auth.uid);
+    }
+
+    // Geaccepteerde vriendschappen (doc-id = gesorteerde uid's met underscore)
+    match /friendships/{id} {
+      allow read: if isSignedIn() && request.auth.uid in resource.data.members;
+      allow create: if isSignedIn() && request.auth.uid in request.resource.data.members;
+      allow delete: if isSignedIn() && request.auth.uid in resource.data.members;
+    }
+
+    // 1:1 chatberichten tussen twee vrienden (doc-id chats/{friendshipId})
+    match /chats/{chatId} {
+      allow read, write: if isSignedIn() && chatId.split('_')[0] != null &&
+        (request.auth.uid in chatId.split('_'));
+
+      match /messages/{msgId} {
+        allow read: if isSignedIn() && (request.auth.uid in chatId.split('_'));
+        allow create: if isSignedIn() && (request.auth.uid in chatId.split('_')) &&
+          request.resource.data.from == request.auth.uid;
+      }
+    }
+
+    // Gedeelde taken tussen twee vrienden
+    match /sharedTasks/{taskId} {
+      allow read, update: if isSignedIn() && request.auth.uid in resource.data.members;
+      allow create: if isSignedIn() && request.auth.uid in request.resource.data.members;
+      allow delete: if isSignedIn() && request.auth.uid in resource.data.members;
+    }
+  }
+}
