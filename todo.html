@@ -93,9 +93,10 @@ body::after{
   50%{ transform:translate(-20px,26px) scale(1.08); }
 }
 /* Op een breder scherm (desktop) tonen we 'm als een afgeronde telefoon-mockup, gecentreerd
-   met een donkere achtergrond errond. Op een echt toestel (viewport <= 402px) blijft alles
-   volledig edge-to-edge / fullscreen, zonder enige uitsparing of donkere randen. */
-@media (min-width:403px){
+   met een donkere achtergrond errond. De drempel ligt bewust hoog (700px) zodat ook de
+   allergrootste telefoons (bv. iPhone Pro Max, ~430px breed) altijd volledig edge-to-edge /
+   fullscreen blijven, zonder donkere randen. */
+@media (min-width:700px){
   html{
     background:#101012;
     display:flex;
