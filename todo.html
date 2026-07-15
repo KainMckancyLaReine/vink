@@ -46,7 +46,7 @@
   --ease-spring: cubic-bezier(.32,1.5,.55,1);
 }
 *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
-html,body{height:100%;}
+html,body{height:100%; overflow:hidden; overscroll-behavior:none;}
 html{
   background:var(--bg);
 }
@@ -58,12 +58,13 @@ body{
   background:var(--bg);
   color:var(--text);
   font-family:var(--font-body);
-  overscroll-behavior-y:none;
+  overscroll-behavior:none;
   display:flex;
   flex-direction:column;
   position:relative;
   isolation:isolate;
   letter-spacing:-0.1px;
+  touch-action:pan-y;
 }
 body::before, body::after{
   content:"";
