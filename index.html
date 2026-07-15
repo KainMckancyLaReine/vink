@@ -1,0 +1,2171 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<title>Vink.</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Vink.">
+<meta name="theme-color" content="#FFFFFF">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='24' fill='%23FF7A00'/%3E%3Cpath d='M27 52l14 14 32-32' stroke='white' stroke-width='10' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#FAFAF9;
+  --surface:#FFFFFF;
+  --surface-alt:#FFF4EA;
+  --orange:#FF7A00;
+  --orange-dark:#E8690A;
+  --orange-light:#FFE7CC;
+  --orange-soft:#FFF1E0;
+  --pink:#FF3D9E;
+  --purple:#7B5CFF;
+  --cyan:#22D3EE;
+  --font-body:'Inter', -apple-system, BlinkMacSystemFont, "SF Pro Text", Helvetica, Arial, sans-serif;
+  --font-display:'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "SF Pro Display", Helvetica, Arial, sans-serif;
+  --text:#161618;
+  --sub:#96959c;
+  --border:#F0EEEE;
+  --danger:#FF3B30;
+  --success:#28C76F;
+  --radius-sm:14px;
+  --radius-md:20px;
+  --radius-lg:26px;
+  --radius-xl:32px;
+  --shadow-sm: 0 1px 2px rgba(20,16,10,0.04), 0 2px 8px rgba(20,16,10,0.04);
+  --shadow: 0 2px 6px rgba(20,16,10,0.04), 0 14px 34px -8px rgba(20,16,10,0.10);
+  --shadow-lg: 0 10px 24px rgba(255,122,0,0.18), 0 30px 60px -16px rgba(255,61,158,0.20);
+  --glow-gradient: conic-gradient(from 0deg, #FF7A00, #FF3D9E, #7B5CFF, #22D3EE, #FF7A00);
+  --grad-orange: linear-gradient(135deg, #FFB238 0%, #FF7A00 55%, #FF3D6E 100%);
+  --ease-spring: cubic-bezier(.32,1.5,.55,1);
+}
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+html,body{height:100%;}
+html{
+  background:#101012;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+body{
+  margin:0;
+  width:402px;
+  max-width:100vw;
+  height:874px;
+  max-height:100vh;
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--font-body);
+  overscroll-behavior-y:none;
+  display:flex;
+  flex-direction:column;
+  position:relative;
+  isolation:isolate;
+  box-shadow:0 0 0 1px rgba(0,0,0,0.04), 0 40px 100px rgba(0,0,0,0.35);
+  letter-spacing:-0.1px;
+}
+body::before, body::after{
+  content:"";
+  position:absolute;
+  z-index:0;
+  border-radius:50%;
+  filter:blur(60px);
+  pointer-events:none;
+  opacity:.55;
+}
+body::before{
+  width:280px; height:280px; top:-90px; left:-70px;
+  background:radial-gradient(circle, rgba(255,122,0,0.35), transparent 70%);
+  animation:auroraFloat1 16s ease-in-out infinite;
+}
+body::after{
+  width:260px; height:260px; top:120px; right:-90px;
+  background:radial-gradient(circle, rgba(123,92,255,0.22), transparent 70%);
+  animation:auroraFloat2 18s ease-in-out infinite;
+}
+@keyframes auroraFloat1{
+  0%,100%{ transform:translate(0,0) scale(1); }
+  50%{ transform:translate(24px,30px) scale(1.12); }
+}
+@keyframes auroraFloat2{
+  0%,100%{ transform:translate(0,0) scale(1); }
+  50%{ transform:translate(-20px,26px) scale(1.08); }
+}
+/* Op een breder scherm (desktop) tonen we 'm als een afgeronde telefoon-mockup.
+   Op een echt toestel (viewport <= 402px) blijft alles edge-to-edge, geen clipping. */
+@media (min-width:403px){
+  body{ border-radius:46px; overflow:hidden; }
+}
+button{font-family:inherit; cursor:pointer;}
+button:active{transform:scale(0.94);}
+button{transition:transform .18s var(--ease-spring);}
+.icon{width:22px; height:22px; display:block;}
+.icon svg{width:100%; height:100%;}
+
+/* ---------- App shell ---------- */
+.view{
+  display:none;
+  flex-direction:column;
+  height:100%;
+  padding-top:env(safe-area-inset-top);
+  overflow:hidden;
+  position:relative;
+  z-index:1;
+}
+.view.active{display:flex; animation:viewIn .32s var(--ease-spring);}
+@keyframes viewIn{
+  from{ opacity:0; transform:translateY(10px) scale(.99); }
+  to{ opacity:1; transform:none; }
+}
+.scroll{
+  flex:1;
+  overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
+  padding:0 20px 130px;
+}
+
+/* ---------- Header (home) ---------- */
+.top{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:24px 20px 8px;
+}
+.greeting h1{
+  font-family:var(--font-display);
+  font-size:29px;
+  font-weight:800;
+  margin:0;
+  letter-spacing:-0.8px;
+  background:linear-gradient(120deg, var(--text) 30%, var(--orange-dark) 100%);
+  -webkit-background-clip:text; background-clip:text; color:transparent;
+}
+.greeting .date{
+  color:var(--sub);
+  font-size:14px;
+  font-weight:500;
+  margin-top:3px;
+}
+.ring-wrap{position:relative; width:58px; height:58px; filter:drop-shadow(0 6px 14px rgba(255,122,0,.28));}
+.ring-wrap svg{transform:rotate(-90deg);}
+.ring-wrap circle{transition:stroke-dashoffset .6s var(--ease-spring);}
+.ring-pct{
+  position:absolute; inset:0;
+  display:flex; align-items:center; justify-content:center;
+  font-size:13px; font-weight:800; color:var(--orange-dark); font-family:var(--font-display);
+}
+
+.chips{
+  display:flex; gap:9px;
+  padding:18px 20px 14px;
+}
+.chip{
+  border:none;
+  background:var(--surface);
+  color:var(--sub);
+  padding:9px 17px;
+  border-radius:20px;
+  font-size:13px;
+  font-weight:700;
+  box-shadow:var(--shadow-sm);
+  border:1px solid rgba(0,0,0,0.03);
+  transition:transform .18s var(--ease-spring), background .2s, color .2s, box-shadow .2s;
+}
+.chip.active{
+  background:var(--grad-orange);
+  color:white;
+  box-shadow:0 10px 22px -4px rgba(255,90,60,0.45);
+  border-color:transparent;
+}
+
+.empty{
+  text-align:center;
+  color:var(--sub);
+  margin-top:70px;
+  font-size:15px;
+  line-height:1.6;
+}
+.empty .big{display:flex; justify-content:center; margin-bottom:12px; animation:floaty 3s ease-in-out infinite; color:var(--orange);}
+.empty .big svg{width:46px; height:46px;}
+.icon-inline{display:inline-flex; vertical-align:-3px; margin-right:6px;}
+.icon-inline svg{width:15px; height:15px;}
+@keyframes floaty{0%,100%{transform:translateY(0);} 50%{transform:translateY(-8px);}}
+
+ul#list{list-style:none; margin:0; padding:4px 0 0;}
+li.task{
+  position:relative;
+  background:var(--surface);
+  border-radius:var(--radius-md);
+  margin:12px 0;
+  padding:18px 18px 18px 23px;
+  display:flex;
+  align-items:flex-start;
+  gap:12px;
+  box-shadow:var(--shadow);
+  border:1px solid rgba(0,0,0,0.03);
+  animation:pop .28s var(--ease-spring);
+  overflow:hidden;
+  transition:transform .18s var(--ease-spring), box-shadow .2s;
+}
+li.task:active{transform:scale(0.985);}
+li.task::before{
+  content:"";
+  position:absolute; left:0; top:12px; bottom:12px; width:4px;
+  border-radius:4px; background:var(--border);
+}
+li.task[data-priority="hoog"]::before{background:linear-gradient(var(--danger), #FF6B5E);}
+li.task[data-priority="normaal"]::before{background:var(--grad-orange);}
+li.task[data-priority="laag"]::before{background:linear-gradient(var(--success), #57DD93);}
+li.task.done::before{background:var(--border);}
+@keyframes pop{from{opacity:0; transform:translateY(10px) scale(.97);} to{opacity:1; transform:none;}}
+.check{
+  width:26px; height:26px;
+  border-radius:50%;
+  border:2px solid var(--orange-light);
+  flex-shrink:0;
+  margin-top:1px;
+  display:flex; align-items:center; justify-content:center;
+  background:var(--surface);
+  transition:transform .18s var(--ease-spring), background .2s, border-color .2s;
+}
+.check:active{transform:scale(0.85);}
+li.task.done .check{background:var(--grad-orange); border-color:transparent; box-shadow:0 4px 10px rgba(255,122,0,.35);}
+.check svg{width:14px; height:14px; opacity:0; stroke:white;}
+li.task.done .check svg{opacity:1;}
+.t-content{flex:1; min-width:0;}
+.t-text{font-family:var(--font-display); font-size:16px; line-height:1.35; font-weight:600; word-break:break-word; letter-spacing:-0.2px;}
+li.task.done .t-text{color:var(--sub); text-decoration:line-through; font-weight:500;}
+.t-tags{display:flex; gap:7px; margin-top:10px; flex-wrap:wrap;}
+.tag{
+  font-size:11px; font-weight:700;
+  padding:4px 10px; border-radius:20px;
+  background:var(--orange-soft); color:var(--orange-dark);
+}
+.tag.prio-hoog{background:#FFE3E1; color:#D93A31;}
+.tag.prio-laag{background:#E7F8EE; color:#1F9D57;}
+.tag.thinking{background:var(--border); color:var(--sub);}
+.t-del{
+  background:none; border:none; color:var(--sub);
+  padding:4px; flex-shrink:0; opacity:.5;
+}
+.t-del:active{opacity:1; color:var(--danger);}
+.t-del svg{width:18px; height:18px;}
+
+.clear-link{
+  display:block; margin:18px auto 0;
+  background:none; border:none; color:var(--danger);
+  font-size:13px; font-weight:700;
+}
+
+/* ---------- Generic header for sub views ---------- */
+.page-head{
+  padding:26px 20px 12px;
+  display:flex; align-items:center; justify-content:space-between;
+}
+.page-head h1{font-family:var(--font-display); font-size:25px; font-weight:800; margin:0; letter-spacing:-.7px;}
+.page-head p{color:var(--sub); font-size:13px; font-weight:500; margin:3px 0 0;}
+
+/* ---------- Chat view ---------- */
+.chat-scroll{
+  flex:1; min-height:0; overflow-y:auto; padding:10px 16px 16px;
+  display:flex; flex-direction:column; gap:10px;
+  -webkit-overflow-scrolling:touch;
+}
+.bubble{
+  max-width:82%;
+  padding:12px 16px;
+  border-radius:20px;
+  font-size:15px; line-height:1.45; font-weight:500;
+  animation:pop .28s var(--ease-spring);
+}
+.bubble.ai{
+  align-self:flex-start;
+  background:var(--surface);
+  box-shadow:var(--shadow);
+  border:1px solid rgba(0,0,0,0.03);
+  border-bottom-left-radius:6px;
+}
+.bubble.me{
+  align-self:flex-end;
+  background:var(--grad-orange);
+  color:white;
+  box-shadow:0 8px 18px -4px rgba(255,90,60,.4);
+  border-bottom-right-radius:6px;
+}
+.bubble.actions{
+  align-self:flex-start;
+  font-size:12px;
+  color:var(--sub);
+  background:transparent;
+  padding:0 6px;
+}
+.typing{align-self:flex-start; display:flex; gap:4px; padding:14px 16px; background:var(--surface); border-radius:18px; box-shadow:var(--shadow);}
+.typing span{width:6px; height:6px; border-radius:50%; background:var(--orange); animation:bounce 1.2s infinite ease-in-out;}
+.typing span:nth-child(2){animation-delay:.15s;}
+.typing span:nth-child(3){animation-delay:.3s;}
+@keyframes bounce{0%,80%,100%{transform:translateY(0); opacity:.4;} 40%{transform:translateY(-5px); opacity:1;}}
+
+.chat-input-bar{
+  display:flex; gap:8px; align-items:center;
+  padding:10px 14px 14px;
+  margin-bottom:calc(80px + env(safe-area-inset-bottom));
+  background:var(--bg);
+  flex-shrink:0;
+}
+.chat-input-bar input{
+  flex:1; border:1px solid rgba(0,0,0,0.03); background:var(--surface);
+  border-radius:22px; padding:13px 18px; font-size:15px;
+  outline:none; box-shadow:var(--shadow-sm); color:var(--text);
+}
+.send-btn{
+  width:46px; height:46px; border-radius:50%; border:none;
+  background:var(--grad-orange); color:white; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center;
+  box-shadow:0 10px 22px -4px rgba(255,90,60,.5);
+}
+.send-btn svg{width:19px; height:19px;}
+
+/* ---------- Calendar (day strip + timeline) ---------- */
+.day-strip{
+  display:flex; justify-content:space-between;
+  padding:4px 20px 16px;
+}
+.day-cell{
+  width:34px; padding:9px 0; border-radius:16px;
+  text-align:center; background:none; border:none;
+  transition:transform .18s var(--ease-spring), background .2s;
+}
+.day-cell .dow{display:block; font-size:10px; color:var(--sub); font-weight:700; text-transform:uppercase;}
+.day-cell .dnum{display:block; font-family:var(--font-display); font-size:15px; font-weight:800; margin-top:3px; color:var(--text);}
+.day-cell.today{background:var(--grad-orange); box-shadow:0 10px 20px -4px rgba(255,90,60,.5);}
+.day-cell.today .dow, .day-cell.today .dnum{color:#fff;}
+
+.timeline-wrap{
+  background:var(--surface); border-radius:var(--radius-lg); padding:18px 20px 18px 4px;
+  box-shadow:var(--shadow); border:1px solid rgba(0,0,0,0.03); margin:0 20px 18px;
+}
+.timeline{position:relative;}
+.tl-hour{
+  display:flex; height:56px; border-top:1px dashed var(--border);
+}
+.tl-hour:first-child{border-top:none;}
+.tl-hour-label{
+  width:44px; flex-shrink:0; text-align:right; padding-right:10px;
+  font-size:11px; font-weight:700; color:var(--sub); transform:translateY(-7px);
+}
+.tl-events{position:absolute; left:54px; right:0; top:0; bottom:0;}
+.tl-block{
+  position:absolute; left:0; right:4px; border-radius:12px;
+  padding:6px 10px; overflow:hidden; box-shadow:0 6px 16px -4px rgba(0,0,0,.12);
+  border:1px solid rgba(255,255,255,.5);
+  animation:pop .3s var(--ease-spring);
+}
+.tl-block .tl-name{font-size:12.5px; font-weight:800; font-family:var(--font-display); line-height:1.2;}
+.tl-block .tl-time{font-size:10px; font-weight:700; opacity:.75; margin-top:1px; display:block;}
+.tl-empty{text-align:center; color:var(--sub); font-size:13px; padding:36px 0;}
+
+.untimed-label{font-size:13px; font-weight:700; color:var(--sub); margin:0 20px 8px;}
+.untimed-row{
+  display:flex; align-items:center; gap:10px;
+  background:var(--surface); border-radius:var(--radius-sm); padding:13px 15px;
+  margin:0 20px 8px; box-shadow:var(--shadow-sm); border:1px solid rgba(0,0,0,0.03);
+}
+.untimed-dot{width:9px; height:9px; border-radius:50%; flex-shrink:0;}
+.untimed-row .txt{font-size:14px; font-weight:600; flex:1; min-width:0;}
+.untimed-row.done .txt{color:var(--sub); text-decoration:line-through; font-weight:500;}
+
+/* ---------- Overview view ---------- */
+.stat-grid{display:flex; gap:12px; padding:10px 20px 6px;}
+.stat-card{
+  flex:1; background:var(--surface); border-radius:var(--radius-md); padding:20px 16px;
+  box-shadow:var(--shadow); border:1px solid rgba(0,0,0,0.03); text-align:center;
+  transition:transform .18s var(--ease-spring);
+}
+.stat-card .num{font-family:var(--font-display); font-size:25px; font-weight:800; background:linear-gradient(135deg,var(--orange),var(--orange-dark)); -webkit-background-clip:text; background-clip:text; color:transparent;}
+.stat-card .lbl{font-size:12px; color:var(--sub); margin-top:3px; font-weight:600;}
+
+.brief-card{
+  position:relative; overflow:hidden;
+  margin:16px 20px 0;
+  background:linear-gradient(135deg, #FF9A3D 0%, var(--orange) 45%, var(--pink) 100%);
+  color:white;
+  border-radius:var(--radius-lg);
+  padding:24px;
+  box-shadow:var(--shadow-lg);
+  min-height:96px;
+}
+.brief-card::after{
+  content:"";
+  position:absolute; top:-40px; right:-40px; width:140px; height:140px;
+  background:radial-gradient(circle, rgba(255,255,255,0.28), transparent 70%);
+  border-radius:50%;
+}
+.brief-card .label{position:relative; font-size:12px; font-weight:800; opacity:.9; text-transform:uppercase; letter-spacing:.7px;}
+.brief-card .text{position:relative; font-size:16px; line-height:1.55; margin-top:9px; font-weight:600;}
+.brief-btn{
+  margin:16px 20px 0;
+  width:calc(100% - 36px);
+  background:var(--surface); border:1px solid rgba(0,0,0,0.03); border-radius:var(--radius-md);
+  padding:15px; font-size:15px; font-weight:700; color:var(--orange-dark);
+  box-shadow:var(--shadow);
+}
+
+/* ---------- Settings view ---------- */
+.profile-hero{
+  position:relative;
+  overflow:hidden;
+  background:var(--surface);
+  border-radius:var(--radius-xl);
+  padding:32px 20px 26px;
+  text-align:center;
+  box-shadow:var(--shadow);
+  border:1px solid rgba(0,0,0,0.03);
+  margin:0 20px;
+}
+.profile-hero::before{
+  content:"";
+  position:absolute; top:-80px; left:50%; transform:translateX(-50%);
+  width:260px; height:260px;
+  background:radial-gradient(circle, rgba(255,122,0,0.18), transparent 70%);
+  z-index:0;
+}
+.avatar-wrap{position:relative; z-index:1; width:88px; margin:0 auto 16px;}
+.profile-avatar-lg{
+  width:88px; height:88px; border-radius:50%;
+  background:var(--grad-orange);
+  color:white; display:flex; align-items:center; justify-content:center;
+  font-size:32px; font-weight:800; font-family:var(--font-display);
+  box-shadow:0 14px 30px -6px rgba(255,90,60,.45), 0 0 0 5px var(--surface);
+  background-size:cover; background-position:center;
+}
+.avatar-edit-btn{
+  position:absolute; right:-2px; bottom:-2px;
+  width:31px; height:31px; border-radius:50%;
+  background:var(--grad-orange); border:3px solid var(--surface);
+  display:flex; align-items:center; justify-content:center;
+  box-shadow:0 6px 14px -2px rgba(255,90,60,.55);
+}
+.avatar-edit-btn svg{width:14px; height:14px;}
+.profile-name-lg{position:relative; z-index:1; font-family:var(--font-display); font-size:20px; font-weight:800; letter-spacing:-0.4px;}
+.profile-email-lg{position:relative; z-index:1; font-size:13px; color:var(--sub); margin-top:3px;}
+.profile-stats{position:relative; z-index:1; display:flex; justify-content:center; gap:32px; margin-top:22px;}
+.pstat{text-align:center;}
+.pnum{font-family:var(--font-display); font-size:21px; font-weight:800; color:var(--orange-dark);}
+.plbl{font-size:11px; color:var(--sub); font-weight:600; margin-top:3px;}
+.field-label{font-size:13px; font-weight:700; color:var(--sub); margin:20px 20px 9px; letter-spacing:0.2px;}
+.field-card{
+  margin:0 20px; background:var(--surface); border-radius:var(--radius-md); box-shadow:var(--shadow);
+  border:1px solid rgba(0,0,0,0.03);
+  overflow:hidden;
+}
+.field-row{display:flex; align-items:center; padding:15px 16px; gap:10px;}
+.field-row input[type=text],.field-row input[type=password],.field-row select{
+  flex:1; border:none; background:transparent; font-size:15px; outline:none; color:var(--text);
+}
+.field-row + .field-row{border-top:1px solid var(--border);}
+.mini-btn{
+  border:none; background:var(--orange-soft); color:var(--orange-dark);
+  font-size:12px; font-weight:700; padding:9px 13px; border-radius:11px;
+}
+.settings-btn{
+  margin:14px 20px 0; width:calc(100% - 36px);
+  background:var(--surface); border:1px solid rgba(0,0,0,0.03); border-radius:var(--radius-md);
+  padding:15px 16px; font-size:15px; font-weight:700;
+  box-shadow:var(--shadow); color:var(--text); text-align:left;
+  display:flex; justify-content:space-between; align-items:center; gap:10px;
+  transition:transform .18s var(--ease-spring);
+}
+.settings-btn .sb-left{display:flex; align-items:center; gap:11px; min-width:0;}
+.settings-btn .sb-icon{
+  width:35px; height:35px; border-radius:12px; flex-shrink:0;
+  background:var(--orange-soft); color:var(--orange-dark);
+  display:flex; align-items:center; justify-content:center; font-size:16px;
+}
+.settings-btn.danger .sb-icon{background:#FFE3E1; color:var(--danger);}
+.settings-btn .chev{color:var(--sub); font-size:20px; font-weight:600; flex-shrink:0;}
+.settings-btn.danger{color:var(--danger);}
+.note{font-size:12px; color:var(--sub); margin:10px 20px 0; line-height:1.55; font-weight:500;}
+.toggle-row{display:flex; align-items:center; justify-content:space-between; padding:15px 16px;}
+.switch{position:relative; width:46px; height:27px; flex-shrink:0;}
+.switch input{opacity:0; width:0; height:0;}
+.slider{position:absolute; inset:0; background:var(--border); border-radius:27px; transition:.25s var(--ease-spring);}
+.slider:before{content:""; position:absolute; width:21px; height:21px; left:3px; top:3px; background:white; border-radius:50%; transition:.25s var(--ease-spring); box-shadow:0 2px 4px rgba(0,0,0,.2);}
+.switch input:checked + .slider{background:var(--grad-orange);}
+.switch input:checked + .slider:before{transform:translateX(19px);}
+
+/* ---------- Modal (quick add) ---------- */
+.overlay{
+  position:absolute; inset:0; background:rgba(10,8,6,.4);
+  -webkit-backdrop-filter:blur(3px); backdrop-filter:blur(3px);
+  display:none; align-items:flex-end; justify-content:center; z-index:50;
+  border-radius:inherit; overflow:hidden;
+}
+.overlay.show{display:flex; animation:fadeIn .2s ease;}
+@keyframes fadeIn{from{opacity:0;} to{opacity:1;}}
+.sheet{
+  width:100%; background:var(--surface);
+  border-radius:30px 30px 0 0;
+  padding:22px 20px calc(26px + env(safe-area-inset-bottom));
+  animation:slideup .3s var(--ease-spring);
+  box-shadow:0 -20px 50px rgba(0,0,0,.15);
+}
+@keyframes slideup{from{transform:translateY(60px); opacity:0;} to{transform:none; opacity:1;}}
+.sheet-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;}
+.sheet-head h2{font-family:var(--font-display); font-size:20px; font-weight:800; letter-spacing:-0.4px; margin:0;}
+.sheet-head button{background:var(--border); border:none; border-radius:50%; width:30px; height:30px; display:flex; align-items:center; justify-content:center;}
+.sheet-head button svg{width:15px; height:15px;}
+.sheet textarea{
+  width:100%; border:2px solid var(--border); border-radius:18px;
+  padding:15px; font-size:16px; font-family:inherit; resize:none;
+  min-height:76px; outline:none; color:var(--text); transition:border-color .2s;
+}
+.sheet textarea:focus{border-color:var(--orange);}
+.time-toggle{
+  margin-top:11px; border:none; background:var(--orange-soft); color:var(--orange-dark);
+  font-size:13px; font-weight:700; padding:10px 15px; border-radius:13px;
+}
+.time-fields{display:flex; gap:8px; margin-top:11px;}
+.time-fields input[type=time], .time-fields select{
+  flex:1; border:2px solid var(--border); border-radius:13px;
+  padding:11px; font-size:14px; font-family:inherit; color:var(--text); outline:none; background:var(--surface);
+}
+.sheet-actions{display:flex; gap:10px; margin-top:16px;}
+.btn-primary,.btn-secondary{
+  flex:1; border:none; border-radius:16px; padding:15px; font-size:15px; font-weight:700;
+}
+.btn-primary{background:var(--grad-orange); color:white; box-shadow:0 10px 22px -4px rgba(255,90,60,.5);}
+.btn-secondary{background:var(--orange-soft); color:var(--orange-dark);}
+.btn-primary:disabled,.btn-secondary:disabled{opacity:.5;}
+
+/* ---------- Toast ---------- */
+#toast{
+  position:absolute; left:50%; bottom:112px; transform:translateX(-50%) translateY(14px) scale(.95);
+  background:rgba(22,22,24,0.92);
+  -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px);
+  color:white; padding:12px 19px; border-radius:16px;
+  font-size:13px; font-weight:600; opacity:0; transition:.3s var(--ease-spring); z-index:80; pointer-events:none;
+  max-width:82%; text-align:center; box-shadow:0 12px 30px rgba(0,0,0,.3);
+}
+#toast.show{opacity:1; transform:translateX(-50%) translateY(0) scale(1);}
+
+/* ---------- Bottom navbar ---------- */
+.navbar{
+  position:absolute; left:0; right:0; bottom:0;
+  display:flex; justify-content:center;
+  padding-bottom:calc(14px + env(safe-area-inset-bottom));
+  z-index:40;
+  pointer-events:none;
+}
+.navbar-inner{
+  pointer-events:auto;
+  display:flex; align-items:center; gap:4px;
+  background:rgba(16,16,18,0.78);
+  -webkit-backdrop-filter:blur(24px) saturate(180%);
+  backdrop-filter:blur(24px) saturate(180%);
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:32px;
+  padding:8px;
+  box-shadow:0 20px 50px rgba(0,0,0,0.32), inset 0 1px 0 rgba(255,255,255,0.06);
+}
+.nav-btn{
+  position:relative;
+  background:none; border:none; width:52px; height:48px;
+  display:flex; align-items:center; justify-content:center;
+  border-radius:24px; color:rgba(255,255,255,0.5);
+  z-index:1;
+  transition:transform .18s var(--ease-spring), background .25s, color .25s;
+}
+.nav-btn.active{background:rgba(255,255,255,0.12); color:#fff;}
+.nav-btn.active::after{
+  content:"";
+  position:absolute;
+  width:60px; height:60px;
+  left:50%; top:50%;
+  margin:-30px 0 0 -30px;
+  background:var(--glow-gradient);
+  filter:blur(13px);
+  opacity:.55;
+  z-index:-1;
+  border-radius:50%;
+  animation:spin 6s linear infinite;
+}
+.nav-btn .icon{width:23px; height:23px;}
+@keyframes spin{from{transform:rotate(0deg);} to{transform:rotate(360deg);}}
+.nav-add{
+  position:relative;
+  width:57px; height:57px; border-radius:50%;
+  background:var(--grad-orange);
+  color:white; margin:0 2px;
+  display:flex; align-items:center; justify-content:center;
+  box-shadow:0 12px 28px -2px rgba(255,90,60,.55), 0 0 0 4px rgba(16,16,18,0.78);
+  transform:translateY(-9px);
+  z-index:1;
+}
+.nav-add::after{
+  content:"";
+  position:absolute; inset:-6px;
+  border-radius:50%;
+  background:var(--glow-gradient);
+  filter:blur(11px);
+  opacity:.4;
+  z-index:-1;
+  animation:spin 7s linear infinite reverse;
+}
+.nav-add .icon{width:26px; height:26px;}
+</style>
+</head>
+<body>
+
+<!-- HOME -->
+<section class="view active" id="view-home">
+  <div class="top">
+    <div class="greeting">
+      <h1 id="greetText">Hoi</h1>
+      <div class="date" id="dateLine"></div>
+    </div>
+    <div class="ring-wrap">
+      <svg width="56" height="56" viewBox="0 0 56 56">
+        <circle cx="28" cy="28" r="24" fill="none" stroke="#F1F1F3" stroke-width="6"/>
+        <circle id="ringProgress" cx="28" cy="28" r="24" fill="none" stroke="#FF7A00" stroke-width="6" stroke-linecap="round" stroke-dasharray="150.8" stroke-dashoffset="150.8"/>
+      </svg>
+      <div class="ring-pct" id="ringPct">0%</div>
+    </div>
+  </div>
+
+  <div class="chips">
+    <button class="chip active" data-filter="all">Alles</button>
+    <button class="chip" data-filter="active">Open</button>
+    <button class="chip" data-filter="done">Klaar</button>
+  </div>
+
+  <div class="scroll">
+    <ul id="list"></ul>
+    <div class="empty" id="empty">
+      <span class="big"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.5c.4 3.7 1.1 6.2 2.2 7.3S17.8 11.6 21.5 12c-3.7.4-6.2 1.1-7.3 2.2S12.4 17.8 12 21.5c-.4-3.7-1.1-6.2-2.2-7.3S6.2 12.4 2.5 12c3.7-.4 6.2-1.1 7.3-2.2S11.6 6.2 12 2.5z"/></svg></span>
+      Nog niets te doen.<br>Tik op de + knop om te beginnen.
+    </div>
+    <button class="clear-link" id="clearDone" style="display:none;">Verwijder afgeronde taken</button>
+  </div>
+</section>
+
+<!-- CHAT -->
+<section class="view" id="view-chat">
+  <div class="page-head">
+    <div>
+      <h1>AI-assistent</h1>
+      <p>Beheer je taken via een gesprek</p>
+    </div>
+  </div>
+  <div class="chat-scroll" id="chatScroll"></div>
+  <div class="chat-input-bar">
+    <input type="text" id="chatInput" placeholder="Typ een bericht..." autocomplete="off">
+    <button class="send-btn" id="chatSend" aria-label="verstuur">
+      <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7z"/></svg>
+    </button>
+  </div>
+</section>
+
+<!-- OVERVIEW / CALENDAR -->
+<section class="view" id="view-overview">
+  <div class="page-head">
+    <div>
+      <h1>Kalender</h1>
+      <p id="calMonthLabel">Jouw dag in het kort</p>
+    </div>
+  </div>
+  <div class="scroll">
+    <div class="day-strip" id="dayStrip"></div>
+
+    <div class="timeline-wrap">
+      <div class="timeline" id="timeline"></div>
+    </div>
+
+    <div id="untimedWrap"></div>
+
+    <div class="stat-grid">
+      <div class="stat-card"><div class="num" id="statTotal">0</div><div class="lbl">Totaal</div></div>
+      <div class="stat-card"><div class="num" id="statDone">0</div><div class="lbl">Klaar</div></div>
+      <div class="stat-card"><div class="num" id="statOpen">0</div><div class="lbl">Open</div></div>
+    </div>
+    <div class="brief-card">
+      <div class="label">Dagbriefing · AI</div>
+      <div class="text" id="briefText">Tik hieronder om een persoonlijke samenvatting van je dag te genereren.</div>
+    </div>
+    <button class="brief-btn" id="genBrief"><span class="icon-inline" style="margin-right:8px; vertical-align:-2px;"><svg viewBox="0 0 24 24" fill="currentColor" width="15" height="15"><path d="M12 2.5c.4 3.7 1.1 6.2 2.2 7.3S17.8 11.6 21.5 12c-3.7.4-6.2 1.1-7.3 2.2S12.4 17.8 12 21.5c-.4-3.7-1.1-6.2-2.2-7.3S6.2 12.4 2.5 12c3.7-.4 6.2-1.1 7.3-2.2S11.6 6.2 12 2.5z"/></svg></span><span id="genBriefLabel">Genereer dagoverzicht</span></button>
+  </div>
+</section>
+
+<!-- SETTINGS -->
+<section class="view" id="view-settings">
+  <div class="page-head">
+    <div>
+      <h1>Profiel</h1>
+      <p>Account, vrienden &amp; instellingen</p>
+    </div>
+  </div>
+  <div class="scroll">
+
+    <div class="field-label">Cloud sync (Firebase)</div>
+    <div class="field-card">
+      <div class="field-row" style="justify-content:space-between; gap:10px;">
+        <span style="display:flex; align-items:center; gap:9px; min-width:0;">
+          <span id="fbStatusDot" style="width:9px; height:9px; border-radius:50%; background:var(--success); flex-shrink:0;"></span>
+          <span id="firebaseStatus" style="font-size:14px; font-weight:600; min-width:0;">Verbinden...</span>
+        </span>
+        <button type="button" class="mini-btn" id="toggleFbAdvanced">Geavanceerd</button>
+      </div>
+    </div>
+    <div id="fbAdvancedPanel" style="display:none;">
+      <div class="field-card" style="margin-top:10px;">
+        <div class="field-row" style="align-items:flex-start; padding-top:14px; padding-bottom:14px;">
+          <textarea id="firebaseConfigInput" placeholder='Plak hier je Firebase config, bv. {"apiKey":"...","authDomain":"...","projectId":"..."}' style="min-height:64px; border:none; background:transparent; font-size:12px; width:100%; resize:vertical; outline:none; font-family:monospace; color:var(--text);"></textarea>
+        </div>
+      </div>
+      <button class="settings-btn" id="saveFirebaseConfig">
+        <span class="sb-left"><span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="17" height="17"><path d="M10 13a5 5 0 0 0 7.5.5l2-2a5 5 0 0 0-7-7l-1.5 1.5"/><path d="M14 11a5 5 0 0 0-7.5-.5l-2 2a5 5 0 0 0 7 7l1.5-1.5"/></svg></span>Cloud sync opslaan &amp; verbinden</span>
+        <span class="chev">›</span>
+      </button>
+    </div>
+
+    <!-- Logged out -->
+    <div id="authSection" style="display:none;">
+      <div class="field-label" id="authModeLabel">Inloggen</div>
+      <div class="field-card">
+        <div class="field-row"><input type="text" id="authEmail" placeholder="E-mailadres" autocomplete="email" autocapitalize="off"></div>
+        <div class="field-row"><input type="password" id="authPassword" placeholder="Wachtwoord (min. 6 tekens)" autocomplete="current-password"></div>
+      </div>
+      <div class="sheet-actions" style="margin:14px 20px 0;">
+        <button class="btn-secondary" id="authToggleMode">Nog geen account?</button>
+        <button class="btn-primary" id="authSubmit">Inloggen</button>
+      </div>
+      <div class="note" id="authError"></div>
+    </div>
+
+    <!-- Logged in -->
+    <div id="profileSection" style="display:none;">
+      <div class="profile-hero">
+        <div class="avatar-wrap">
+          <div id="avatarCircle" class="profile-avatar-lg">?</div>
+          <button class="avatar-edit-btn" id="avatarEditBtn" aria-label="profielfoto wijzigen" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8a2 2 0 0 1 2-2h1.5l1-1.5h7l1 1.5H18a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8z"/><circle cx="12" cy="13" r="3.4"/></svg>
+          </button>
+          <input type="file" id="avatarFileInput" accept="image/*" style="display:none;">
+        </div>
+        <div id="profileName" class="profile-name-lg"></div>
+        <div id="profileEmail" class="profile-email-lg"></div>
+        <div class="profile-stats">
+          <div class="pstat"><div class="pnum" id="statMyTasks">0</div><div class="plbl">Taken</div></div>
+          <div class="pstat"><div class="pnum" id="statMyDone">0</div><div class="plbl">Klaar</div></div>
+          <div class="pstat"><div class="pnum" id="statFriends">0</div><div class="plbl">Vrienden</div></div>
+        </div>
+      </div>
+      <button class="settings-btn" id="logoutBtn">
+        <span class="sb-left"><span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="17" height="17"><path d="M9 21H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3"/><polyline points="15 17 20 12 15 7"/><line x1="20" y1="12" x2="9" y2="12"/></svg></span>Uitloggen</span>
+        <span class="chev">›</span>
+      </button>
+
+      <div class="field-label">Vrienden toevoegen</div>
+      <div class="field-card">
+        <div class="field-row">
+          <input type="text" id="friendEmailInput" placeholder="E-mail van vriend(in)" autocapitalize="off">
+          <button class="mini-btn" id="addFriendBtn">Verzoek</button>
+        </div>
+      </div>
+      <div id="incomingRequests"></div>
+      <div id="friendsList"></div>
+    </div>
+
+    <div class="field-label">Gemini API-key</div>
+    <div class="field-card">
+      <div class="field-row">
+        <input type="password" id="apiKeyInput" placeholder="Plak hier je Gemini API-key">
+        <button class="mini-btn" id="toggleKey">Toon</button>
+      </div>
+    </div>
+    <div class="note">Je key wordt alleen lokaal op dit toestel opgeslagen en rechtstreeks naar Google Gemini gestuurd — nooit gedeeld met iemand anders. Een key maak je gratis op aistudio.google.com/apikey.</div>
+
+    <div class="field-label">Model</div>
+    <div class="field-card">
+      <div class="field-row">
+        <select id="modelSelect">
+          <option value="gemini-flash-latest">gemini-flash-latest (snel &amp; goedkoop)</option>
+          <option value="gemini-3.5-flash">gemini-3.5-flash</option>
+          <option value="gemini-3.1-pro">gemini-3.1-pro (krachtiger)</option>
+          <option value="gemini-3-pro">gemini-3-pro</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="field-label">Voorkeuren</div>
+    <div class="field-card">
+      <div class="toggle-row">
+        <span>Automatische suggesties bij nieuwe taak</span>
+        <label class="switch"><input type="checkbox" id="autoSuggest" checked><span class="slider"></span></label>
+      </div>
+      <div class="toggle-row">
+        <span>Pop-up meldingen (taken &amp; chat)</span>
+        <label class="switch"><input type="checkbox" id="notifToggle"><span class="slider"></span></label>
+      </div>
+    </div>
+
+    <button class="settings-btn" id="saveSettings">
+      <span class="sb-left"><span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="17" height="17"><circle cx="12" cy="12" r="9"/><polyline points="8 12.5 11 15.5 16 9.5"/></svg></span>Instellingen opslaan</span>
+      <span class="chev">›</span>
+    </button>
+    <button class="settings-btn danger" id="clearAll">
+      <span class="sb-left"><span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="17" height="17"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></span>Wis alle taken &amp; gegevens</span>
+      <span class="chev">›</span>
+    </button>
+
+    <div class="note">Vink. — werkt volledig lokaal op je telefoon. Log in om je taken ook in de cloud te bewaren en te delen met vrienden.</div>
+  </div>
+</section>
+
+<!-- Bottom navbar -->
+<nav class="navbar">
+  <div class="navbar-inner">
+    <button class="nav-btn active" data-view="home" aria-label="home">
+      <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v9a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1v-9"/></svg></span>
+    </button>
+    <button class="nav-btn" data-view="chat" aria-label="assistent">
+      <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l1.6 4.6L18 8l-4.4 1.6L12 14l-1.6-4.4L6 8l4.4-1.4L12 2z"/><path d="M19 13.5l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8.8-2z"/></svg></span>
+    </button>
+    <button class="nav-add" id="navAdd" aria-label="nieuwe taak">
+      <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span>
+    </button>
+    <button class="nav-btn" data-view="overview" aria-label="kalender">
+      <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15.5" rx="3.5"/><line x1="3.5" y1="10" x2="20.5" y2="10"/><line x1="8" y1="3" x2="8" y2="7"/><line x1="16" y1="3" x2="16" y2="7"/></svg></span>
+    </button>
+    <button class="nav-btn" data-view="settings" aria-label="profiel">
+      <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></span>
+    </button>
+  </div>
+</nav>
+
+<!-- Quick add sheet -->
+<div class="overlay" id="overlay">
+  <div class="sheet">
+    <div class="sheet-head">
+      <h2>Nieuwe taak</h2>
+      <button id="closeSheet"><svg viewBox="0 0 24 24" fill="none" stroke="#1C1C1E" stroke-width="2.4" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <textarea id="taskInput" placeholder="Wat wil je doen? Of typ een groter doel en laat AI het opsplitsen..."></textarea>
+
+    <button type="button" class="time-toggle" id="timeToggle"><span class="icon-inline"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 14"/></svg></span><span id="timeToggleLabel">Tijdstip toevoegen</span></button>
+    <div class="time-fields" id="timeFields" style="display:none;">
+      <input type="time" id="taskTime" value="09:00">
+      <select id="taskDuration">
+        <option value="30">30 min</option>
+        <option value="60" selected>1 uur</option>
+        <option value="90">1,5 uur</option>
+        <option value="120">2 uur</option>
+      </select>
+    </div>
+
+    <div class="sheet-actions">
+      <button class="btn-secondary" id="aiSplitBtn"><span class="icon-inline"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.5c.4 3.7 1.1 6.2 2.2 7.3S17.8 11.6 21.5 12c-3.7.4-6.2 1.1-7.3 2.2S12.4 17.8 12 21.5c-.4-3.7-1.1-6.2-2.2-7.3S6.2 12.4 2.5 12c3.7-.4 6.2-1.1 7.3-2.2S11.6 6.2 12 2.5z"/></svg></span><span id="aiSplitBtnLabel">Splits met AI</span></button>
+      <button class="btn-primary" id="addTaskBtn">Toevoegen</button>
+    </div>
+  </div>
+</div>
+
+<!-- Friend tasks + gedeelde taken -->
+<div class="overlay" id="friendOverlay">
+  <div class="sheet">
+    <div class="sheet-head">
+      <h2 id="friendSheetTitle">Taken</h2>
+      <div style="display:flex; align-items:center; gap:8px;">
+        <button id="openFriendChatBtn" aria-label="chat" style="background:var(--orange-soft); border-radius:50%; width:38px; height:38px; display:flex; align-items:center; justify-content:center;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--orange-dark)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+        </button>
+        <button id="closeFriendSheet"><svg viewBox="0 0 24 24" fill="none" stroke="#1C1C1E" stroke-width="2.4" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+      </div>
+    </div>
+    <div style="max-height:70vh; overflow-y:auto;">
+      <div class="field-label" style="margin:6px 4px 8px;">Samen</div>
+      <div style="display:flex; gap:8px; margin:0 0 12px;">
+        <input type="text" id="sharedTaskInput" placeholder="Nieuwe gedeelde taak..." style="flex:1; border:1px solid rgba(0,0,0,0.03); background:var(--surface); border-radius:14px; padding:11px 14px; font-size:14px; outline:none; box-shadow:var(--shadow-sm); color:var(--text);">
+        <button id="addSharedTaskBtn" class="mini-btn">Delen</button>
+      </div>
+      <div id="sharedTaskList"></div>
+      <div class="field-label" style="margin:16px 4px 8px;" id="friendPersonalLabel">Taken</div>
+      <div id="friendTaskList"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Vriendenchat -->
+<div class="overlay" id="friendChatOverlay">
+  <div class="sheet" style="height:78vh; display:flex; flex-direction:column; padding:0;">
+    <div class="sheet-head" style="padding:22px 20px 12px;">
+      <h2 id="friendChatTitle">Chat</h2>
+      <button id="closeFriendChat"><svg viewBox="0 0 24 24" fill="none" stroke="#1C1C1E" stroke-width="2.4" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="chat-scroll" id="friendChatScroll" style="flex:1;"></div>
+    <div class="chat-input-bar" style="margin-bottom:calc(16px + env(safe-area-inset-bottom));">
+      <input type="text" id="friendChatInput" placeholder="Typ een bericht..." autocomplete="off">
+      <button class="send-btn" id="friendChatSend" aria-label="verstuur">
+        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script src="https://www.gstatic.com/firebasejs/12.15.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.15.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore-compat.js"></script>
+<script>
+(function(){
+  "use strict";
+
+  /* ---------- Storage ---------- */
+  var LS_TASKS = 'do-tasks-v1';
+  var LS_KEY = 'do-openai-key';
+  var LS_MODEL = 'do-openai-model';
+  var LS_AUTOSUGGEST = 'do-autosuggest';
+  var LS_NOTIF = 'do-notifications';
+  var LS_CHAT = 'do-chat-history';
+  var LS_FB_CONFIG = 'do-firebase-config';
+  var LS_PHOTO = 'do-profile-photo';
+
+  function loadJSON(key, fallback){
+    try { var raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback; }
+    catch(e){ return fallback; }
+  }
+  function saveJSON(key, val){ try{ localStorage.setItem(key, JSON.stringify(val)); }catch(e){} }
+
+  var tasks = loadJSON(LS_TASKS, []);
+  var chatHistory = loadJSON(LS_CHAT, []);
+  var currentFilter = 'all';
+
+  function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+  function saveTasks(){
+    saveJSON(LS_TASKS, tasks);
+    if(currentUser && fbDb){
+      fbDb.collection('userTasks').doc(currentUser.uid).set({ tasks: tasks }, { merge:true })
+        .catch(function(err){ showToast('Kon niet syncen: ' + err.message); });
+    }
+  }
+  function saveChat(){ saveJSON(LS_CHAT, chatHistory.slice(-30)); }
+  function escapeHtml(s){ var d = document.createElement('div'); d.textContent = s == null ? '' : s; return d.innerHTML; }
+
+  /* ---------- Toast ---------- */
+  var toastEl = document.getElementById('toast');
+  var toastTimer;
+  function showToast(msg){
+    toastEl.textContent = msg;
+    toastEl.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ toastEl.classList.remove('show'); }, 2600);
+  }
+
+  /* ---------- Navigation ---------- */
+  var views = document.querySelectorAll('.view');
+  var navBtns = document.querySelectorAll('.nav-btn');
+  function switchView(name){
+    views.forEach(function(v){ v.classList.toggle('active', v.id === 'view-' + name); });
+    navBtns.forEach(function(b){ b.classList.toggle('active', b.dataset.view === name); });
+    if(name === 'overview') renderStats();
+    if(name === 'chat') scrollChatToBottom();
+  }
+  navBtns.forEach(function(b){
+    b.addEventListener('click', function(){ switchView(b.dataset.view); });
+  });
+
+  /* ---------- Greeting / date ---------- */
+  function setGreeting(){
+    var h = new Date().getHours();
+    var g = h < 12 ? 'Goedemorgen' : h < 18 ? 'Goedemiddag' : 'Goedenavond';
+    document.getElementById('greetText').textContent = g;
+    var d = new Date();
+    var str = d.toLocaleDateString('nl-NL', { weekday:'long', day:'numeric', month:'long' });
+    document.getElementById('dateLine').textContent = str.charAt(0).toUpperCase() + str.slice(1);
+  }
+
+  /* ---------- Rendering tasks ---------- */
+  var listEl = document.getElementById('list');
+  var emptyEl = document.getElementById('empty');
+  var clearBtn = document.getElementById('clearDone');
+  var ringCircle = document.getElementById('ringProgress');
+  var ringPct = document.getElementById('ringPct');
+  var CIRC = 2 * Math.PI * 24;
+
+  function priorityLabel(p){
+    if(p === 'hoog') return 'Hoog';
+    if(p === 'laag') return 'Laag';
+    if(p === 'normaal') return 'Normaal';
+    return null;
+  }
+
+  function renderRing(){
+    var total = tasks.length;
+    var done = tasks.filter(function(t){return t.done;}).length;
+    var pct = total ? Math.round((done/total)*100) : 0;
+    var offset = CIRC - (pct/100)*CIRC;
+    ringCircle.setAttribute('stroke-dasharray', CIRC.toFixed(1));
+    ringCircle.setAttribute('stroke-dashoffset', offset.toFixed(1));
+    ringPct.textContent = pct + '%';
+  }
+
+  function renderList(){
+    listEl.innerHTML = '';
+    var filtered = tasks.filter(function(t){
+      if(currentFilter === 'active') return !t.done;
+      if(currentFilter === 'done') return t.done;
+      return true;
+    });
+    emptyEl.style.display = filtered.length === 0 ? 'block' : 'none';
+    if(tasks.length > 0 && filtered.length === 0){
+      emptyEl.innerHTML = '<span class="big"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>Geen taken in dit filter.';
+} else if(tasks.length === 0){
+      emptyEl.innerHTML = '<span class="big"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.5c.4 3.7 1.1 6.2 2.2 7.3S17.8 11.6 21.5 12c-3.7.4-6.2 1.1-7.3 2.2S12.4 17.8 12 21.5c-.4-3.7-1.1-6.2-2.2-7.3S6.2 12.4 2.5 12c3.7-.4 6.2-1.1 7.3-2.2S11.6 6.2 12 2.5z"/></svg></span>Nog niets te doen.<br>Tik op de + knop om te beginnen.';
+    }
+    clearBtn.style.display = tasks.some(function(t){return t.done;}) ? 'block' : 'none';
+
+    filtered.forEach(function(t){
+      var li = document.createElement('li');
+      li.className = 'task' + (t.done ? ' done' : '');
+      if(t.priority) li.dataset.priority = t.priority;
+
+      var check = document.createElement('button');
+      check.className = 'check';
+      check.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+      check.addEventListener('click', function(){ toggleTask(t.id); });
+
+      var content = document.createElement('div');
+      content.className = 't-content';
+      var text = document.createElement('div');
+      text.className = 't-text';
+      text.textContent = t.text;
+      content.appendChild(text);
+
+      var tags = document.createElement('div');
+      tags.className = 't-tags';
+      if(t.aiPending){
+        var think = document.createElement('span');
+        think.className = 'tag thinking';
+        think.textContent = 'AI denkt...';
+        tags.appendChild(think);
+      } else {
+        if(t.priority){
+          var pTag = document.createElement('span');
+          pTag.className = 'tag prio-' + t.priority;
+          pTag.textContent = priorityLabel(t.priority);
+          tags.appendChild(pTag);
+        }
+        if(t.category){
+          var cTag = document.createElement('span');
+          cTag.className = 'tag';
+          cTag.textContent = t.category;
+          tags.appendChild(cTag);
+        }
+        if(t.time){
+          var tTag = document.createElement('span');
+          tTag.className = 'tag';
+          tTag.innerHTML = '<span class="icon-inline"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 14"/></svg></span>' + t.time;
+          tags.appendChild(tTag);
+        }
+      }
+      if(tags.children.length) content.appendChild(tags);
+
+      var del = document.createElement('button');
+      del.className = 't-del';
+      del.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>';
+      del.addEventListener('click', function(){ removeTask(t.id); });
+
+      li.appendChild(check);
+      li.appendChild(content);
+      li.appendChild(del);
+      listEl.appendChild(li);
+    });
+
+    renderRing();
+    updateProfileStats();
+    renderCalendar();
+  }
+
+  function updateProfileStats(){
+    var elTotal = document.getElementById('statMyTasks');
+    var elDone = document.getElementById('statMyDone');
+    if(!elTotal || !elDone) return;
+    elTotal.textContent = tasks.length;
+    elDone.textContent = tasks.filter(function(t){return t.done;}).length;
+  }
+
+  /* ---------- Calendar (day strip + timeline) ---------- */
+  var CAL_COLORS = [
+    { bg:'#FDF3B0', text:'#8A6D00' },
+    { bg:'#FFD4CB', text:'#B0341F' },
+    { bg:'#E3D9FB', text:'#5B3FA6' },
+    { bg:'#CFF3DE', text:'#1F7A4C' },
+    { bg:'#D6E8FF', text:'#2A5DB0' }
+  ];
+  var TL_START_HOUR = 7;
+  var TL_END_HOUR = 22;
+  var TL_PX_PER_MIN = 56 / 60;
+
+  function colorForTask(t){
+    var basis = t.id || t.text || '';
+    var sum = 0;
+    for(var i = 0; i < basis.length; i++) sum += basis.charCodeAt(i);
+    return CAL_COLORS[sum % CAL_COLORS.length];
+  }
+
+  function timeToMinutes(hhmm){
+    var parts = hhmm.split(':');
+    return (parseInt(parts[0], 10) || 0) * 60 + (parseInt(parts[1], 10) || 0);
+  }
+
+  function renderDayStrip(){
+    var wrap = document.getElementById('dayStrip');
+    if(!wrap) return;
+    wrap.innerHTML = '';
+    var today = new Date();
+    var dow = today.getDay(); // 0 = zondag
+    var monday = new Date(today);
+    monday.setDate(today.getDate() - ((dow + 6) % 7));
+    var labels = ['Z','M','D','W','D','V','Z'];
+    for(var i = 0; i < 7; i++){
+      var d = new Date(monday);
+      d.setDate(monday.getDate() + i);
+      var isToday = d.toDateString() === today.toDateString();
+      var cell = document.createElement('button');
+      cell.type = 'button';
+      cell.className = 'day-cell' + (isToday ? ' today' : '');
+      cell.innerHTML = '<span class="dow">' + labels[d.getDay()] + '</span><span class="dnum">' + d.getDate() + '</span>';
+      cell.addEventListener('click', function(){
+        showToast('Dit toont de planning van vandaag.');
+      });
+      wrap.appendChild(cell);
+    }
+    var monthLabel = document.getElementById('calMonthLabel');
+    if(monthLabel){
+      var str = today.toLocaleDateString('nl-NL', { day:'numeric', month:'long' });
+      monthLabel.textContent = 'Vandaag · ' + str;
+    }
+  }
+
+  function renderTimeline(){
+    var timelineEl = document.getElementById('timeline');
+    if(!timelineEl) return;
+    timelineEl.innerHTML = '';
+
+    var timedTasks = tasks.filter(function(t){ return t.time && !t.done; });
+
+    var hoursHtml = '';
+    for(var h = TL_START_HOUR; h <= TL_END_HOUR; h++){
+      var label = (h % 12 === 0 ? 12 : h % 12) + ':00 ' + (h < 12 ? 'AM' : 'PM');
+      hoursHtml += '<div class="tl-hour"><div class="tl-hour-label">' + label + '</div></div>';
+    }
+    timelineEl.innerHTML = hoursHtml;
+
+    var eventsWrap = document.createElement('div');
+    eventsWrap.className = 'tl-events';
+    timelineEl.appendChild(eventsWrap);
+
+    if(!timedTasks.length){
+      var empty = document.createElement('div');
+      empty.className = 'tl-empty';
+      empty.textContent = 'Nog geen ingeplande taken vandaag';
+      eventsWrap.appendChild(empty);
+    }
+
+    timedTasks.forEach(function(t){
+      var startMin = timeToMinutes(t.time);
+      var rangeStart = TL_START_HOUR * 60;
+      var offsetMin = startMin - rangeStart;
+      if(offsetMin < 0) offsetMin = 0;
+      var duration = t.duration || 60;
+      var top = offsetMin * TL_PX_PER_MIN;
+      var height = Math.max(duration * TL_PX_PER_MIN, 30);
+      var color = colorForTask(t);
+
+      var block = document.createElement('div');
+      block.className = 'tl-block';
+      block.style.top = top + 'px';
+      block.style.height = height + 'px';
+      block.style.background = color.bg;
+      block.style.color = color.text;
+      block.innerHTML = '<div class="tl-name">' + escapeHtml(t.text) + '</div><span class="tl-time">' + escapeHtml(t.time) + '</span>';
+      eventsWrap.appendChild(block);
+    });
+  }
+
+  function renderUntimed(){
+    var wrap = document.getElementById('untimedWrap');
+    if(!wrap) return;
+    wrap.innerHTML = '';
+    var untimed = tasks.filter(function(t){ return !t.time; });
+    if(!untimed.length) return;
+
+    var label = document.createElement('div');
+    label.className = 'untimed-label';
+    label.textContent = 'Zonder tijdstip';
+    wrap.appendChild(label);
+
+    untimed.slice(0, 8).forEach(function(t){
+      var row = document.createElement('div');
+      row.className = 'untimed-row' + (t.done ? ' done' : '');
+      var dotColor = t.priority === 'hoog' ? 'var(--danger)' : t.priority === 'laag' ? 'var(--success)' : 'var(--orange)';
+      row.innerHTML = '<span class="untimed-dot" style="background:' + dotColor + ';"></span><span class="txt">' + escapeHtml(t.text) + '</span>';
+      wrap.appendChild(row);
+    });
+  }
+
+  function renderCalendar(){
+    renderDayStrip();
+    renderTimeline();
+    renderUntimed();
+  }
+
+  function addTask(text, opts){
+    opts = opts || {};
+    var t = {
+      id: uid(), text: text.trim(), done:false, created: Date.now(),
+      priority: opts.priority || null, category: opts.category || null, aiPending:false,
+      time: opts.time || null,
+      duration: opts.time ? (parseInt(opts.duration,10) || 60) : null
+    };
+    tasks.unshift(t);
+    saveTasks();
+    renderList();
+    if(document.getElementById('autoSuggest').checked && getApiKey() && !opts.priority){
+      requestSuggestion(t.id);
+    }
+    return t;
+  }
+  function toggleTask(id){
+    var t = tasks.find(function(x){return x.id===id;});
+    if(t){ t.done = !t.done; t.completedAt = t.done ? Date.now() : null; }
+    saveTasks(); renderList();
+  }
+  function removeTask(id){
+    tasks = tasks.filter(function(x){return x.id!==id;});
+    saveTasks(); renderList();
+  }
+  function clearDoneTasks(){
+    tasks = tasks.filter(function(x){return !x.done;});
+    saveTasks(); renderList();
+  }
+
+  document.querySelectorAll('.chip').forEach(function(c){
+    c.addEventListener('click', function(){
+      document.querySelectorAll('.chip').forEach(function(x){x.classList.remove('active');});
+      c.classList.add('active');
+      currentFilter = c.dataset.filter;
+      renderList();
+    });
+  });
+  clearBtn.addEventListener('click', clearDoneTasks);
+
+  /* ---------- OpenAI helper ---------- */
+  function getApiKey(){ return (localStorage.getItem(LS_KEY) || '').trim(); }
+  var DEPRECATED_MODELS = ['gemini-2.5-flash','gemini-2.5-pro','gemini-2.0-flash','gemini-2.0-flash-lite','gpt-4o-mini','gpt-4o','gpt-4.1-mini'];
+  function getModel(){
+    var m = localStorage.getItem(LS_MODEL);
+    if(!m || DEPRECATED_MODELS.indexOf(m) !== -1) return 'gemini-flash-latest';
+    return m;
+  }
+
+  function callOpenAI(messages, jsonMode){
+    var key = getApiKey();
+    if(!key){
+      showToast('Voeg eerst je Gemini-key toe bij Instellingen');
+      return Promise.reject(new Error('no-key'));
+    }
+    var sysText = messages.filter(function(m){return m.role === 'system';}).map(function(m){return m.content;}).join('\n');
+    var contents = messages.filter(function(m){return m.role !== 'system';}).map(function(m){
+      return { role: m.role === 'assistant' ? 'model' : 'user', parts: [{ text: m.content }] };
+    });
+    var body = { contents: contents };
+    if(sysText) body.systemInstruction = { parts: [{ text: sysText }] };
+    var generationConfig = { temperature: 0.6 };
+    if(jsonMode) generationConfig.responseMimeType = 'application/json';
+    body.generationConfig = generationConfig;
+
+    var url = 'https://generativelanguage.googleapis.com/v1beta/models/' + getModel() + ':generateContent?key=' + encodeURIComponent(key);
+    return fetch(url, {
+      method:'POST',
+      headers:{ 'Content-Type':'application/json' },
+      body: JSON.stringify(body)
+    }).then(function(res){
+      if(!res.ok){
+        return res.json().catch(function(){return {};}).then(function(err){
+          var msg = (err && err.error && err.error.message) ? err.error.message : ('HTTP ' + res.status);
+          throw new Error(msg);
+        });
+      }
+      return res.json();
+    }).then(function(data){
+      var cand = data.candidates && data.candidates[0];
+      var content = cand && cand.content && cand.content.parts && cand.content.parts.map(function(p){return p.text || '';}).join('');
+      if(!content){
+        if(cand && cand.finishReason === 'SAFETY') throw new Error('Antwoord geblokkeerd door veiligheidsfilter');
+        throw new Error('Leeg antwoord van AI');
+      }
+      return content;
+    });
+  }
+
+  /* ---------- AI: suggestie per taak ---------- */
+  function requestSuggestion(taskId){
+    var t = tasks.find(function(x){return x.id===taskId;});
+    if(!t) return;
+    t.aiPending = true; renderList();
+    var messages = [
+      { role:'system', content:'Je bent een productiviteitsassistent. Geef voor de gegeven taak een prioriteit en korte categorie. Antwoord ALLEEN met JSON: {"priority":"laag|normaal|hoog","category":"kort label max 2 woorden in het Nederlands"}.' },
+      { role:'user', content: t.text }
+    ];
+    callOpenAI(messages, true).then(function(content){
+      var parsed = JSON.parse(content);
+      var tt = tasks.find(function(x){return x.id===taskId;});
+      if(tt){
+        tt.priority = parsed.priority || null;
+        tt.category = parsed.category || null;
+        tt.aiPending = false;
+        saveTasks(); renderList();
+      }
+    }).catch(function(err){
+      var tt = tasks.find(function(x){return x.id===taskId;});
+      if(tt){ tt.aiPending = false; renderList(); }
+      if(err.message !== 'no-key') showToast('AI-suggestie mislukt: ' + err.message);
+    });
+  }
+
+  /* ---------- Quick add sheet ---------- */
+  var overlay = document.getElementById('overlay');
+  var taskInput = document.getElementById('taskInput');
+  var navAdd = document.getElementById('navAdd');
+  var closeSheet = document.getElementById('closeSheet');
+  var addTaskBtn = document.getElementById('addTaskBtn');
+  var aiSplitBtn = document.getElementById('aiSplitBtn');
+  var aiSplitBtnLabel = document.getElementById('aiSplitBtnLabel');
+
+  var timeToggle = document.getElementById('timeToggle');
+  var timeToggleLabel = document.getElementById('timeToggleLabel');
+  var timeFields = document.getElementById('timeFields');
+  var taskTime = document.getElementById('taskTime');
+  var taskDuration = document.getElementById('taskDuration');
+
+  timeToggle.addEventListener('click', function(){
+    var showing = timeFields.style.display !== 'none';
+    timeFields.style.display = showing ? 'none' : 'flex';
+    timeToggleLabel.textContent = showing ? 'Tijdstip toevoegen' : 'Tijdstip verwijderen';
+  });
+
+  function openSheet(){
+    overlay.classList.add('show');
+    taskInput.value = '';
+    timeFields.style.display = 'none';
+    timeToggleLabel.textContent = 'Tijdstip toevoegen';
+    taskTime.value = '09:00';
+    taskDuration.value = '60';
+    setTimeout(function(){ taskInput.focus(); }, 250);
+  }
+  function hideSheet(){ overlay.classList.remove('show'); taskInput.blur(); }
+
+  navAdd.addEventListener('click', openSheet);
+  closeSheet.addEventListener('click', hideSheet);
+  overlay.addEventListener('click', function(e){ if(e.target === overlay) hideSheet(); });
+
+  addTaskBtn.addEventListener('click', function(){
+    var v = taskInput.value.trim();
+    if(!v) return;
+    var opts = {};
+    if(timeFields.style.display !== 'none' && taskTime.value){
+      opts.time = taskTime.value;
+      opts.duration = taskDuration.value;
+    }
+    addTask(v, opts);
+    hideSheet();
+    showToast('Taak toegevoegd');
+  });
+
+  aiSplitBtn.addEventListener('click', function(){
+    var v = taskInput.value.trim();
+    if(!v) return;
+    aiSplitBtn.disabled = true; addTaskBtn.disabled = true;
+    aiSplitBtnLabel.textContent = 'Bezig...';
+    var messages = [
+      { role:'system', content:'Je bent een productiviteitsassistent. Splits het gegeven doel op in 3 tot 7 concrete, korte actiepunten in het Nederlands. Antwoord ALLEEN met JSON: {"tasks":["...", "..."]}.' },
+      { role:'user', content: v }
+    ];
+    callOpenAI(messages, true).then(function(content){
+      var parsed = JSON.parse(content);
+      var list = parsed.tasks || [];
+      list.forEach(function(txt){ addTask(txt); });
+      hideSheet();
+      showToast(list.length + ' taken toegevoegd door AI');
+    }).catch(function(err){
+      if(err.message !== 'no-key') showToast('AI-opsplitsing mislukt: ' + err.message);
+    }).finally(function(){
+      aiSplitBtn.disabled = false; addTaskBtn.disabled = false;
+      aiSplitBtnLabel.textContent = 'Splits met AI';
+    });
+  });
+
+  /* ---------- Chat assistant ---------- */
+  var chatScroll = document.getElementById('chatScroll');
+  var chatInput = document.getElementById('chatInput');
+  var chatSend = document.getElementById('chatSend');
+
+  function scrollChatToBottom(){
+    requestAnimationFrame(function(){ chatScroll.scrollTop = chatScroll.scrollHeight; });
+  }
+
+  function renderChat(){
+    chatScroll.innerHTML = '';
+    if(chatHistory.length === 0){
+      var intro = document.createElement('div');
+      intro.className = 'bubble ai';
+      intro.textContent = 'Hoi! Ik ben je AI-assistent. Vraag me bijvoorbeeld: "voeg boodschappen doen toe" of "markeer alles wat met werk te maken heeft als klaar".';
+      chatScroll.appendChild(intro);
+    }
+    chatHistory.forEach(function(m){
+      var b = document.createElement('div');
+      b.className = 'bubble ' + (m.role === 'user' ? 'me' : 'ai');
+      b.textContent = m.content;
+      chatScroll.appendChild(b);
+    });
+    scrollChatToBottom();
+  }
+
+  function addTyping(){
+    var t = document.createElement('div');
+    t.className = 'typing';
+    t.id = 'typingIndicator';
+    t.innerHTML = '<span></span><span></span><span></span>';
+    chatScroll.appendChild(t);
+    scrollChatToBottom();
+  }
+  function removeTyping(){
+    var t = document.getElementById('typingIndicator');
+    if(t) t.remove();
+  }
+
+  function applyActions(actions){
+    var count = 0;
+    (actions || []).forEach(function(a){
+      if(a.type === 'add' && a.text){
+        addTask(a.text, { priority: a.priority || null });
+        count++;
+      } else if(a.type === 'complete' && a.id){
+        var t = tasks.find(function(x){return x.id===a.id;});
+        if(t){ t.done = true; t.completedAt = Date.now(); count++; }
+      } else if(a.type === 'uncomplete' && a.id){
+        var t2 = tasks.find(function(x){return x.id===a.id;});
+        if(t2){ t2.done = false; t2.completedAt = null; count++; }
+      } else if(a.type === 'delete' && a.id){
+        tasks = tasks.filter(function(x){return x.id!==a.id;});
+        count++;
+      } else if(a.type === 'edit' && a.id && a.text){
+        var t3 = tasks.find(function(x){return x.id===a.id;});
+        if(t3){ t3.text = a.text; count++; }
+      }
+    });
+    if(count){ saveTasks(); renderList(); }
+  }
+
+  function sendChat(){
+    var v = chatInput.value.trim();
+    if(!v) return;
+    chatInput.value = '';
+    chatHistory.push({ role:'user', content:v });
+    saveChat(); renderChat(); addTyping();
+
+    var taskSnapshot = tasks.map(function(t){ return { id:t.id, text:t.text, done:t.done }; });
+    var sys = 'Je bent een behulpzame Nederlandstalige to-do-assistent in een app. ' +
+      'Je kunt taken beheren via acties. Huidige taken (JSON): ' + JSON.stringify(taskSnapshot) + '. ' +
+      'Antwoord ALTIJD ALLEEN met geldige JSON in dit formaat: {"reply": "korte vriendelijke reactie in het Nederlands", "actions": [ {"type":"add","text":"...","priority":"laag|normaal|hoog"} | {"type":"complete","id":"..."} | {"type":"uncomplete","id":"..."} | {"type":"delete","id":"..."} | {"type":"edit","id":"...","text":"..."} ]}. ' +
+      'Gebruik "actions": [] als er niets hoeft te veranderen. Gebruik alleen bestaande id\'s uit de lijst hierboven.';
+
+    var recent = chatHistory.slice(-8).map(function(m){ return { role: m.role, content: m.content }; });
+    var messages = [{ role:'system', content: sys }].concat(recent);
+
+    callOpenAI(messages, true).then(function(content){
+      removeTyping();
+      var parsed;
+      try { parsed = JSON.parse(content); } catch(e){ parsed = { reply: content, actions: [] }; }
+      applyActions(parsed.actions);
+      chatHistory.push({ role:'assistant', content: parsed.reply || '...' });
+      saveChat(); renderChat();
+    }).catch(function(err){
+      removeTyping();
+      if(err.message !== 'no-key'){
+        chatHistory.push({ role:'assistant', content: 'Er ging iets mis: ' + err.message });
+        saveChat(); renderChat();
+      }
+    });
+  }
+
+  chatSend.addEventListener('click', sendChat);
+  chatInput.addEventListener('keydown', function(e){ if(e.key === 'Enter'){ sendChat(); } });
+
+  /* ---------- Overview ---------- */
+  function renderStats(){
+    var total = tasks.length;
+    var done = tasks.filter(function(t){return t.done;}).length;
+    document.getElementById('statTotal').textContent = total;
+    document.getElementById('statDone').textContent = done;
+    document.getElementById('statOpen').textContent = total - done;
+  }
+
+  document.getElementById('genBrief').addEventListener('click', function(){
+    var btn = this;
+    var label = document.getElementById('genBriefLabel');
+    btn.disabled = true; label.textContent = 'Bezig...';
+    var snapshot = tasks.map(function(t){ return { text:t.text, done:t.done }; });
+    var messages = [
+      { role:'system', content:'Je bent een warme, motiverende Nederlandstalige assistent. Schrijf een korte (max 3 zinnen) persoonlijke dagbriefing gebaseerd op de taken van de gebruiker. Antwoord ALLEEN met JSON: {"summary":"..."}.' },
+      { role:'user', content: 'Mijn taken: ' + JSON.stringify(snapshot) }
+    ];
+    callOpenAI(messages, true).then(function(content){
+      var parsed = JSON.parse(content);
+      document.getElementById('briefText').textContent = parsed.summary || 'Geen samenvatting beschikbaar.';
+    }).catch(function(err){
+      if(err.message !== 'no-key') showToast('Kon geen overzicht genereren: ' + err.message);
+    }).finally(function(){
+      btn.disabled = false; label.textContent = 'Genereer dagoverzicht';
+    });
+  });
+
+  /* ---------- Settings ---------- */
+  var apiKeyInput = document.getElementById('apiKeyInput');
+  var modelSelect = document.getElementById('modelSelect');
+  var autoSuggest = document.getElementById('autoSuggest');
+  var toggleKey = document.getElementById('toggleKey');
+  var notifToggle = document.getElementById('notifToggle');
+
+  apiKeyInput.value = getApiKey();
+  modelSelect.value = getModel();
+  autoSuggest.checked = loadJSON(LS_AUTOSUGGEST, true);
+  notifToggle.checked = loadJSON(LS_NOTIF, false) && (typeof Notification !== 'undefined' && Notification.permission === 'granted');
+
+  toggleKey.addEventListener('click', function(){
+    var isPw = apiKeyInput.type === 'password';
+    apiKeyInput.type = isPw ? 'text' : 'password';
+    toggleKey.textContent = isPw ? 'Verberg' : 'Toon';
+  });
+
+  notifToggle.addEventListener('change', function(){
+    if(!notifToggle.checked){ saveJSON(LS_NOTIF, false); return; }
+    if(typeof Notification === 'undefined'){
+      showToast('Meldingen worden niet ondersteund op dit toestel');
+      notifToggle.checked = false; return;
+    }
+    Notification.requestPermission().then(function(perm){
+      if(perm === 'granted'){
+        saveJSON(LS_NOTIF, true);
+        showToast('Meldingen ingeschakeld');
+      } else {
+        notifToggle.checked = false;
+        saveJSON(LS_NOTIF, false);
+        showToast('Meldingen geblokkeerd — zet ze aan bij je browserinstellingen');
+      }
+    });
+  });
+
+  function notificationsAllowed(){
+    return typeof Notification !== 'undefined' && Notification.permission === 'granted' && loadJSON(LS_NOTIF, false);
+  }
+  function notify(title, body){
+    if(!notificationsAllowed()) return;
+    try{ new Notification(title, { body: body, icon: 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Crect width=\'100\' height=\'100\' rx=\'24\' fill=\'%23FF7A00\'/%3E%3Cpath d=\'M27 52l14 14 32-32\' stroke=\'white\' stroke-width=\'10\' fill=\'none\' stroke-linecap=\'round\' stroke-linejoin=\'round\'/%3E%3C/svg%3E' }); }
+    catch(e){}
+  }
+
+  document.getElementById('saveSettings').addEventListener('click', function(){
+    localStorage.setItem(LS_KEY, apiKeyInput.value.trim());
+    localStorage.setItem(LS_MODEL, modelSelect.value);
+    saveJSON(LS_AUTOSUGGEST, autoSuggest.checked);
+    showToast('Instellingen opgeslagen');
+  });
+
+  document.getElementById('clearAll').addEventListener('click', function(){
+    if(confirm('Weet je zeker dat je alle taken en chatgeschiedenis wilt wissen?')){
+      tasks = []; chatHistory = [];
+      saveTasks(); saveChat(); renderList(); renderChat(); renderStats();
+      showToast('Alles gewist');
+    }
+  });
+
+  /* ---------- Firebase: config & connection ---------- */
+  var fbApp = null, fbAuth = null, fbDb = null, currentUser = null;
+  var unsubTasks = null, unsubRequests = null, unsubFriends = null;
+  var unsubShared = null, unsubFriendChat = null;
+  var currentFriendUid = null, currentFriendName = null;
+
+  function parseFirebaseConfig(raw){
+    var t = raw.trim();
+    t = t.replace(/^\s*(const|var|let)\s+\w+\s*=\s*/,'');
+    t = t.replace(/;\s*$/,'');
+    try { return JSON.parse(t); } catch(e){}
+    try { return (new Function('return (' + t + ')'))(); } catch(e){}
+    return null;
+  }
+
+  function friendshipId(a,b){ return a < b ? (a+'_'+b) : (b+'_'+a); }
+
+  function unsubscribeCloud(){
+    if(unsubTasks){ unsubTasks(); unsubTasks = null; }
+    if(unsubRequests){ unsubRequests(); unsubRequests = null; }
+    if(unsubFriends){ unsubFriends(); unsubFriends = null; }
+  }
+
+  function setFbStatus(text, color){
+    var statusEl = document.getElementById('firebaseStatus');
+    var dotEl = document.getElementById('fbStatusDot');
+    if(statusEl) statusEl.textContent = text;
+    if(dotEl) dotEl.style.background = color || 'var(--sub)';
+  }
+
+  document.getElementById('toggleFbAdvanced').addEventListener('click', function(){
+    var panel = document.getElementById('fbAdvancedPanel');
+    var showing = panel.style.display !== 'none';
+    panel.style.display = showing ? 'none' : 'block';
+    this.textContent = showing ? 'Geavanceerd' : 'Verbergen';
+  });
+
+  function initFirebase(){
+    var cfgRaw = localStorage.getItem(LS_FB_CONFIG);
+    if(!cfgRaw){ setFbStatus('Niet verbonden', 'var(--sub)'); return; }
+    if(typeof firebase === 'undefined'){
+      setFbStatus('Kon niet laden — check internet', 'var(--danger)');
+      return;
+    }
+    var cfg;
+    try { cfg = JSON.parse(cfgRaw); } catch(e){ setFbStatus('Ongeldige config', 'var(--danger)'); return; }
+    try{
+      fbApp = firebase.apps && firebase.apps.length ? firebase.apps[0] : firebase.initializeApp(cfg);
+      fbAuth = firebase.auth();
+      fbDb = firebase.firestore();
+      setFbStatus('Verbonden', 'var(--success)');
+      document.getElementById('authSection').style.display = 'block';
+      fbAuth.onAuthStateChanged(onAuthChange);
+    } catch(e){
+      setFbStatus('Verbinden mislukt', 'var(--danger)');
+    }
+  }
+
+  document.getElementById('saveFirebaseConfig').addEventListener('click', function(){
+    var raw = document.getElementById('firebaseConfigInput').value.trim();
+    if(!raw){ showToast('Plak eerst je Firebase config'); return; }
+    var cfg = parseFirebaseConfig(raw);
+    if(!cfg || !cfg.apiKey || !cfg.projectId){
+      showToast('Kon config niet lezen — controleer het formaat');
+      return;
+    }
+    localStorage.setItem(LS_FB_CONFIG, JSON.stringify(cfg));
+    showToast('Firebase-config opgeslagen, verbinden...');
+    initFirebase();
+  });
+
+  /* ---------- Auth ---------- */
+  var authMode = 'login';
+  function translateAuthError(err){
+    var map = {
+      'auth/email-already-in-use':'Dit e-mailadres is al in gebruik.',
+      'auth/invalid-email':'Ongeldig e-mailadres.',
+      'auth/weak-password':'Wachtwoord is te zwak (min. 6 tekens).',
+      'auth/user-not-found':'Geen account gevonden met dit e-mailadres.',
+      'auth/wrong-password':'Onjuist wachtwoord.',
+      'auth/invalid-credential':'E-mailadres of wachtwoord onjuist.',
+      'auth/too-many-requests':'Te veel pogingen, probeer later opnieuw.',
+      'auth/network-request-failed':'Netwerkfout — controleer je internetverbinding.'
+    };
+    return (err && map[err.code]) || (err && err.message) || 'Onbekende fout';
+  }
+
+  document.getElementById('authToggleMode').addEventListener('click', function(){
+    authMode = authMode === 'login' ? 'register' : 'login';
+    document.getElementById('authModeLabel').textContent = authMode === 'login' ? 'Inloggen' : 'Account maken';
+    document.getElementById('authSubmit').textContent = authMode === 'login' ? 'Inloggen' : 'Registreren';
+    document.getElementById('authToggleMode').textContent = authMode === 'login' ? 'Nog geen account?' : 'Al een account?';
+    document.getElementById('authError').textContent = '';
+  });
+
+  document.getElementById('authSubmit').addEventListener('click', function(){
+    if(!fbAuth){ showToast('Verbind eerst Firebase hierboven'); return; }
+    var email = document.getElementById('authEmail').value.trim();
+    var pw = document.getElementById('authPassword').value;
+    var errEl = document.getElementById('authError');
+    if(!email || pw.length < 6){ errEl.textContent = 'Vul een geldig e-mailadres en een wachtwoord van min. 6 tekens in.'; return; }
+    var btn = this; btn.disabled = true;
+    var action;
+    if(authMode === 'login'){
+      action = fbAuth.signInWithEmailAndPassword(email, pw);
+    } else {
+      action = fbAuth.createUserWithEmailAndPassword(email, pw).then(function(cred){
+        return fbDb.collection('users').doc(cred.user.uid).set({
+          email: email.toLowerCase(),
+          displayName: email.split('@')[0],
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge:true });
+      });
+    }
+    action.then(function(){
+      errEl.textContent = '';
+      document.getElementById('authPassword').value = '';
+    }).catch(function(err){
+      errEl.textContent = translateAuthError(err);
+    }).finally(function(){ btn.disabled = false; });
+  });
+
+  document.getElementById('logoutBtn').addEventListener('click', function(){
+    if(fbAuth) fbAuth.signOut();
+  });
+
+  /* ---------- Profielfoto ---------- */
+  document.getElementById('avatarEditBtn').addEventListener('click', function(){
+    document.getElementById('avatarFileInput').click();
+  });
+
+  document.getElementById('avatarFileInput').addEventListener('change', function(e){
+    var file = e.target.files && e.target.files[0];
+    e.target.value = '';
+    if(!file) return;
+    if(!file.type || file.type.indexOf('image/') !== 0){ showToast('Kies een afbeelding'); return; }
+    var reader = new FileReader();
+    reader.onload = function(ev){
+      var img = new Image();
+      img.onload = function(){
+        var size = 256;
+        var canvas = document.createElement('canvas');
+        canvas.width = size; canvas.height = size;
+        var ctx = canvas.getContext('2d');
+        var side = Math.min(img.width, img.height);
+        var sx = (img.width - side) / 2;
+        var sy = (img.height - side) / 2;
+        ctx.drawImage(img, sx, sy, side, side, 0, 0, size, size);
+        var dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+        localStorage.setItem(LS_PHOTO, dataUrl);
+        setAvatarImage(document.getElementById('avatarCircle'), dataUrl);
+        if(currentUser && fbDb){
+          fbDb.collection('users').doc(currentUser.uid).set({ photoURL: dataUrl }, { merge:true })
+            .then(function(){ showToast('Profielfoto bijgewerkt'); })
+            .catch(function(err){ showToast('Kon foto niet opslaan: ' + err.message); });
+        } else {
+          showToast('Profielfoto bijgewerkt');
+        }
+      };
+      img.onerror = function(){ showToast('Kon afbeelding niet laden'); };
+      img.src = ev.target.result;
+    };
+    reader.onerror = function(){ showToast('Kon bestand niet lezen'); };
+    reader.readAsDataURL(file);
+  });
+
+  function setAvatarImage(el, url){
+    if(!el) return;
+    if(url){
+      el.style.backgroundImage = 'url(' + url + ')';
+      el.textContent = '';
+    } else {
+      el.style.backgroundImage = '';
+    }
+  }
+
+  function onAuthChange(user){
+    currentUser = user;
+    if(user){
+      document.getElementById('authSection').style.display = 'none';
+      document.getElementById('profileSection').style.display = 'block';
+      fbDb.collection('users').doc(user.uid).get().then(function(doc){
+        var data = doc.exists ? doc.data() : {};
+        var name = data.displayName || (user.email ? user.email.split('@')[0] : 'Gebruiker');
+        document.getElementById('profileName').textContent = name;
+        document.getElementById('profileEmail').textContent = user.email || '';
+        var avatarEl = document.getElementById('avatarCircle');
+        var photo = data.photoURL || localStorage.getItem(LS_PHOTO);
+        if(photo){
+          setAvatarImage(avatarEl, photo);
+          if(!data.photoURL){
+            fbDb.collection('users').doc(user.uid).set({ photoURL: photo }, { merge:true });
+          }
+        } else {
+          setAvatarImage(avatarEl, null);
+          avatarEl.textContent = (name.charAt(0) || '?').toUpperCase();
+        }
+      });
+      subscribeCloudTasks(user.uid);
+      subscribeFriendRequests(user.uid);
+      subscribeFriends(user.uid);
+    } else {
+      document.getElementById('authSection').style.display = 'block';
+      document.getElementById('profileSection').style.display = 'none';
+      document.getElementById('incomingRequests').innerHTML = '';
+      document.getElementById('friendsList').innerHTML = '';
+      unsubscribeCloud();
+      tasks = loadJSON(LS_TASKS, []);
+      renderList(); renderStats();
+    }
+  }
+
+  /* ---------- Cloud task sync ---------- */
+  function subscribeCloudTasks(userUid){
+    if(unsubTasks) unsubTasks();
+    unsubTasks = fbDb.collection('userTasks').doc(userUid).onSnapshot(function(doc){
+      if(doc.exists && Array.isArray(doc.data().tasks)){
+        tasks = doc.data().tasks;
+      } else {
+        fbDb.collection('userTasks').doc(userUid).set({ tasks: tasks }, { merge:true });
+      }
+      renderList(); renderStats();
+    }, function(err){
+      showToast('Sync-fout: ' + err.message);
+    });
+  }
+
+  /* ---------- Friends ---------- */
+  document.getElementById('addFriendBtn').addEventListener('click', function(){
+    if(!currentUser){ return; }
+    var email = document.getElementById('friendEmailInput').value.trim().toLowerCase();
+    if(!email) return;
+    if(email === (currentUser.email || '').toLowerCase()){ showToast('Dat ben je zelf'); return; }
+    fbDb.collection('users').where('email','==',email).limit(1).get().then(function(snap){
+      if(snap.empty){ showToast('Geen gebruiker gevonden met dit e-mailadres'); return; }
+      var friendUid = snap.docs[0].id;
+      if(friendUid === currentUser.uid){ showToast('Dat ben je zelf'); return; }
+      return fbDb.collection('friendRequests').add({
+        fromUid: currentUser.uid,
+        fromEmail: currentUser.email,
+        fromName: document.getElementById('profileName').textContent || currentUser.email,
+        toUid: friendUid,
+        toEmail: email,
+        status: 'pending',
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      }).then(function(){
+        document.getElementById('friendEmailInput').value = '';
+        showToast('Vriendschapsverzoek verstuurd');
+      });
+    }).catch(function(err){ showToast('Fout: ' + err.message); });
+  });
+
+  function subscribeFriendRequests(userUid){
+    if(unsubRequests) unsubRequests();
+    var firstLoad = true;
+    unsubRequests = fbDb.collection('friendRequests')
+      .where('toUid','==',userUid).where('status','==','pending')
+      .onSnapshot(function(snap){
+        var list = snap.docs.map(function(d){ var o = d.data(); o.id = d.id; return o; });
+        if(!firstLoad){
+          snap.docChanges().forEach(function(ch){
+            if(ch.type === 'added'){
+              var d = ch.doc.data();
+              notify('Nieuw vriendschapsverzoek', (d.fromName || d.fromEmail) + ' wil vrienden worden');
+            }
+          });
+        }
+        firstLoad = false;
+        renderIncomingRequests(list);
+      }, function(){});
+  }
+
+  function renderIncomingRequests(list){
+    var wrap = document.getElementById('incomingRequests');
+    wrap.innerHTML = '';
+    if(!list.length) return;
+    var label = document.createElement('div');
+    label.className = 'field-label';
+    label.textContent = 'Vriendschapsverzoeken';
+    wrap.appendChild(label);
+    list.forEach(function(r){
+      var card = document.createElement('div');
+      card.className = 'field-card';
+      card.style.marginBottom = '10px';
+      var row = document.createElement('div');
+      row.className = 'field-row';
+      var info = document.createElement('div');
+      info.style.flex = '1';
+      info.style.minWidth = '0';
+      info.innerHTML = '<div style="font-weight:700; font-size:14px;">' + escapeHtml(r.fromName || r.fromEmail) + '</div><div style="font-size:12px; color:var(--sub);">' + escapeHtml(r.fromEmail) + '</div>';
+      var accept = document.createElement('button');
+      accept.className = 'mini-btn'; accept.textContent = 'Accepteer'; accept.style.marginRight = '6px';
+      accept.addEventListener('click', function(){ acceptRequest(r); });
+      var decline = document.createElement('button');
+      decline.className = 'mini-btn'; decline.textContent = 'Weiger';
+      decline.style.background = '#FFE3E1'; decline.style.color = '#D93A31';
+      decline.addEventListener('click', function(){ declineRequest(r); });
+      row.appendChild(info); row.appendChild(accept); row.appendChild(decline);
+      card.appendChild(row);
+      wrap.appendChild(card);
+    });
+  }
+
+  function acceptRequest(r){
+    var fid = friendshipId(currentUser.uid, r.fromUid);
+    fbDb.collection('friendships').doc(fid).set({
+      members: [currentUser.uid, r.fromUid],
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    }).then(function(){
+      return fbDb.collection('friendRequests').doc(r.id).update({ status:'accepted' });
+    }).then(function(){ showToast('Jullie zijn nu vrienden'); })
+    .catch(function(err){ showToast('Fout: ' + err.message); });
+  }
+  function declineRequest(r){
+    fbDb.collection('friendRequests').doc(r.id).update({ status:'declined' })
+      .catch(function(err){ showToast('Fout: ' + err.message); });
+  }
+
+  function subscribeFriends(userUid){
+    if(unsubFriends) unsubFriends();
+    unsubFriends = fbDb.collection('friendships').where('members','array-contains',userUid)
+      .onSnapshot(function(snap){
+        var otherUids = snap.docs.map(function(d){
+          var members = d.data().members;
+          return members[0] === userUid ? members[1] : members[0];
+        });
+        renderFriendsList(otherUids);
+      }, function(){});
+  }
+
+  function renderFriendsList(uids){
+    var statFriends = document.getElementById('statFriends');
+    if(statFriends) statFriends.textContent = uids.length;
+    var wrap = document.getElementById('friendsList');
+    wrap.innerHTML = '';
+    if(!uids.length){
+      wrap.innerHTML = '<div class="note">Nog geen vrienden. Voeg iemand toe via e-mail hierboven.</div>';
+      return;
+    }
+    var label = document.createElement('div');
+    label.className = 'field-label';
+    label.textContent = 'Jouw vrienden';
+    wrap.appendChild(label);
+    uids.forEach(function(fuid){
+      fbDb.collection('users').doc(fuid).get().then(function(doc){
+        var data = doc.exists ? doc.data() : { displayName:'Onbekend', email:'' };
+        var name = data.displayName || data.email || 'Onbekend';
+        var avatarHtml = data.photoURL
+          ? '<span class="sb-icon" style="background-image:url(' + data.photoURL + '); background-size:cover; background-position:center;"></span>'
+          : '<span class="sb-icon">' + escapeHtml((name.charAt(0) || '?').toUpperCase()) + '</span>';
+        var card = document.createElement('button');
+        card.className = 'settings-btn';
+        card.style.marginBottom = '8px';
+        card.innerHTML = '<span class="sb-left">' + avatarHtml + escapeHtml(name) + '</span><span class="chev">›</span>';
+        card.addEventListener('click', function(){ openFriendTasks(fuid, name); });
+        wrap.appendChild(card);
+      });
+    });
+  }
+
+  function openFriendTasks(fuid, name){
+    currentFriendUid = fuid; currentFriendName = name;
+    document.getElementById('friendSheetTitle').textContent = name;
+    document.getElementById('friendPersonalLabel').textContent = 'Taken van ' + name;
+    var listEl = document.getElementById('friendTaskList');
+    listEl.innerHTML = '<div class="note">Laden...</div>';
+    document.getElementById('friendOverlay').classList.add('show');
+    fbDb.collection('userTasks').doc(fuid).get().then(function(doc){
+      var ftasks = (doc.exists && doc.data().tasks) || [];
+      listEl.innerHTML = '';
+      if(!ftasks.length){
+        listEl.innerHTML = '<div class="empty"><span class="big"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 20h6"/><path d="M12 20V10"/><path d="M12 10c0-4 2-7 7-8 1 5-1 8-7 8z"/><path d="M12 14c0-3-2-5-6-6-.7 3.5.7 6 6 6z"/></svg></span>Nog geen taken.</div>';
+        return;
+      }
+      ftasks.forEach(function(t){
+        var li = document.createElement('div');
+        li.className = 'task' + (t.done ? ' done' : '');
+        if(t.priority) li.dataset.priority = t.priority;
+        li.style.marginBottom = '9px';
+        li.innerHTML = '<div class="check" style="pointer-events:none;">' +
+          (t.done ? '<svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>' : '') +
+          '</div><div class="t-content"><div class="t-text">' + escapeHtml(t.text) + '</div></div>';
+        listEl.appendChild(li);
+      });
+    }).catch(function(err){
+      listEl.innerHTML = '<div class="note">Kon taken niet laden: ' + escapeHtml(err.message) + '</div>';
+    });
+    subscribeSharedTasks(fuid);
+  }
+
+  /* ---------- Gedeelde taken (Samen) ---------- */
+  function subscribeSharedTasks(fuid){
+    if(unsubShared){ unsubShared(); unsubShared = null; }
+    var listEl = document.getElementById('sharedTaskList');
+    listEl.innerHTML = '<div class="note">Laden...</div>';
+    unsubShared = fbDb.collection('sharedTasks')
+      .where('members', 'array-contains', currentUser.uid)
+      .onSnapshot(function(snap){
+        var items = [];
+        snap.forEach(function(doc){
+          var d = doc.data();
+          if(d.members.indexOf(fuid) !== -1) items.push(Object.assign({ id: doc.id }, d));
+        });
+        items.sort(function(a,b){ return (a.createdAt||0) - (b.createdAt||0); });
+        renderSharedTasks(items);
+      }, function(err){
+        listEl.innerHTML = '<div class="note">Kon gedeelde taken niet laden: ' + escapeHtml(err.message) + '</div>';
+      });
+  }
+
+  function renderSharedTasks(items){
+    var listEl = document.getElementById('sharedTaskList');
+    listEl.innerHTML = '';
+    if(!items.length){
+      listEl.innerHTML = '<div class="note">Nog geen gedeelde taken met ' + escapeHtml(currentFriendName || 'deze vriend') + '.</div>';
+      return;
+    }
+    items.forEach(function(t){
+      var li = document.createElement('div');
+      li.className = 'task' + (t.done ? ' done' : '');
+      li.style.marginBottom = '9px'; li.style.cursor = 'pointer';
+      li.innerHTML = '<div class="check">' +
+        (t.done ? '<svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>' : '') +
+        '</div><div class="t-content"><div class="t-text">' + escapeHtml(t.text) + '</div></div>';
+      li.addEventListener('click', function(){
+        fbDb.collection('sharedTasks').doc(t.id).update({ done: !t.done });
+      });
+      listEl.appendChild(li);
+    });
+  }
+
+  document.getElementById('addSharedTaskBtn').addEventListener('click', function(){
+    var input = document.getElementById('sharedTaskInput');
+    var v = input.value.trim();
+    if(!v || !currentFriendUid || !currentUser) return;
+    fbDb.collection('sharedTasks').add({
+      text: v, done: false,
+      members: [currentUser.uid, currentFriendUid],
+      createdBy: currentUser.uid,
+      createdAt: Date.now()
+    }).then(function(){
+      input.value = '';
+      showToast('Gedeelde taak toegevoegd');
+    }).catch(function(err){ showToast('Delen mislukt: ' + err.message); });
+  });
+  document.getElementById('sharedTaskInput').addEventListener('keydown', function(e){
+    if(e.key === 'Enter') document.getElementById('addSharedTaskBtn').click();
+  });
+
+  document.getElementById('closeFriendSheet').addEventListener('click', function(){
+    document.getElementById('friendOverlay').classList.remove('show');
+    if(unsubShared){ unsubShared(); unsubShared = null; }
+  });
+  document.getElementById('friendOverlay').addEventListener('click', function(e){
+    if(e.target === this){
+      this.classList.remove('show');
+      if(unsubShared){ unsubShared(); unsubShared = null; }
+    }
+  });
+
+  /* ---------- Vriendenchat ---------- */
+  document.getElementById('openFriendChatBtn').addEventListener('click', function(){
+    if(!currentFriendUid) return;
+    openFriendChat(currentFriendUid, currentFriendName);
+  });
+
+  function openFriendChat(fuid, name){
+    document.getElementById('friendChatTitle').textContent = name;
+    document.getElementById('friendChatOverlay').classList.add('show');
+    var scrollEl = document.getElementById('friendChatScroll');
+    scrollEl.innerHTML = '<div class="note" style="text-align:center; margin-top:20px;">Laden...</div>';
+    if(unsubFriendChat){ unsubFriendChat(); unsubFriendChat = null; }
+    var chatId = friendshipId(currentUser.uid, fuid);
+    var firstChatLoad = true;
+    unsubFriendChat = fbDb.collection('chats').doc(chatId).collection('messages')
+      .orderBy('createdAt', 'asc').limitToLast(200)
+      .onSnapshot(function(snap){
+        if(!firstChatLoad){
+          snap.docChanges().forEach(function(ch){
+            if(ch.type === 'added'){
+              var m = ch.doc.data();
+              if(m.from !== currentUser.uid) notify(name, m.text);
+            }
+          });
+        }
+        firstChatLoad = false;
+        scrollEl.innerHTML = '';
+        if(snap.empty){
+          scrollEl.innerHTML = '<div class="note" style="text-align:center; margin-top:20px;">Nog geen berichten. Zeg hallo!</div>';
+          return;
+        }
+        snap.forEach(function(doc){
+          var m = doc.data();
+          var b = document.createElement('div');
+          b.className = 'bubble ' + (m.from === currentUser.uid ? 'me' : 'ai');
+          b.textContent = m.text;
+          scrollEl.appendChild(b);
+        });
+        requestAnimationFrame(function(){ scrollEl.scrollTop = scrollEl.scrollHeight; });
+      }, function(err){
+        scrollEl.innerHTML = '<div class="note">Kon chat niet laden: ' + escapeHtml(err.message) + '</div>';
+      });
+  }
+
+  function sendFriendChatMsg(){
+    var input = document.getElementById('friendChatInput');
+    var v = input.value.trim();
+    if(!v || !currentFriendUid || !currentUser) return;
+    input.value = '';
+    var chatId = friendshipId(currentUser.uid, currentFriendUid);
+    fbDb.collection('chats').doc(chatId).collection('messages').add({
+      from: currentUser.uid, text: v, createdAt: Date.now()
+    }).catch(function(err){ showToast('Versturen mislukt: ' + err.message); });
+  }
+  document.getElementById('friendChatSend').addEventListener('click', sendFriendChatMsg);
+  document.getElementById('friendChatInput').addEventListener('keydown', function(e){
+    if(e.key === 'Enter') sendFriendChatMsg();
+  });
+  document.getElementById('closeFriendChat').addEventListener('click', function(){
+    document.getElementById('friendChatOverlay').classList.remove('show');
+    if(unsubFriendChat){ unsubFriendChat(); unsubFriendChat = null; }
+  });
+  document.getElementById('friendChatOverlay').addEventListener('click', function(e){
+    if(e.target === this){
+      this.classList.remove('show');
+      if(unsubFriendChat){ unsubFriendChat(); unsubFriendChat = null; }
+    }
+  });
+
+  /* ---------- Taak-herinneringen (pop-up meldingen) ---------- */
+  var notifiedTaskIds = {};
+  function checkTaskReminders(){
+    if(!notificationsAllowed()) return;
+    var now = new Date();
+    var hh = String(now.getHours()).padStart(2,'0');
+    var mm = String(now.getMinutes()).padStart(2,'0');
+    var nowStr = hh + ':' + mm;
+    tasks.forEach(function(t){
+      if(t.done || !t.time || notifiedTaskIds[t.id]) return;
+      if(t.time === nowStr){
+        notify('Tijd voor: ' + t.text, t.time + (t.duration ? (' · ' + t.duration + ' min') : ''));
+        notifiedTaskIds[t.id] = true;
+      }
+    });
+  }
+  setInterval(checkTaskReminders, 30000);
+
+  /* ---------- Init ---------- */
+  setGreeting();
+  renderList();
+  renderChat();
+  renderStats();
+  // Standaard Firebase-project (Task mangement) — al voor je aangemaakt en verbonden.
+  // Firebase web-config is niet geheim (beveiliging loopt via de Firestore rules hierboven), dus dit mag hier gewoon staan.
+  var DEFAULT_FIREBASE_CONFIG = {
+    apiKey: "AIzaSyBJy7VzlkPUkldxcnTnzDRPuYJjfiXPZuE",
+    authDomain: "task-mangement-2dd3e.firebaseapp.com",
+    projectId: "task-mangement-2dd3e",
+    storageBucket: "task-mangement-2dd3e.firebasestorage.app",
+    messagingSenderId: "414031880954",
+    appId: "1:414031880954:web:303e5fdcaf54e4ce531f43",
+    measurementId: "G-ZGZTSKM6Q2"
+  };
+  var savedFbConfig = localStorage.getItem(LS_FB_CONFIG);
+  if(!savedFbConfig){
+    savedFbConfig = JSON.stringify(DEFAULT_FIREBASE_CONFIG);
+    localStorage.setItem(LS_FB_CONFIG, savedFbConfig);
+  }
+  document.getElementById('firebaseConfigInput').value = savedFbConfig;
+  initFirebase();
+})();
+</script>
+
+</body>
+</html>
