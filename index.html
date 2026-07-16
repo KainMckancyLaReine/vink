@@ -792,50 +792,43 @@ li.task.done .t-text{color:var(--sub); text-decoration:line-through; font-weight
 .navbar-inner{
   position:relative;
   pointer-events:auto;
-  display:flex; align-items:center; gap:1px;
-  background:rgba(16,16,18,0.8);
+  display:flex; align-items:center; gap:3px;
+  background:rgba(16,16,18,0.76);
   -webkit-backdrop-filter:blur(24px) saturate(180%);
   backdrop-filter:blur(24px) saturate(180%);
-  border:1px solid rgba(255,255,255,0.08);
-  border-radius:28px;
+  border:1px solid rgba(255,255,255,0.07);
+  border-radius:26px;
   padding:5px;
-  box-shadow:0 14px 34px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.06);
+  box-shadow:0 12px 28px rgba(0,0,0,0.24), inset 0 1px 0 rgba(255,255,255,0.05);
 }
 /* Vloeibare indicator die tussen de actieve tabs schuift ("liquid" pill) */
 .nav-indicator{
   position:absolute;
-  top:5px; height:38px; left:0; width:44px;
-  border-radius:20px;
-  background:linear-gradient(135deg, rgba(255,154,61,.92), rgba(255,61,110,.88));
-  box-shadow:0 6px 14px -3px rgba(255,90,60,.5), inset 0 1px 0 rgba(255,255,255,.25);
+  top:5px; height:38px; left:0; width:38px;
+  border-radius:19px;
+  background:linear-gradient(135deg, rgba(255,154,61,.9), rgba(255,61,110,.85));
+  box-shadow:0 5px 12px -3px rgba(255,90,60,.45);
   z-index:0;
-  transition:transform .38s cubic-bezier(.4,0,.2,1), width .38s cubic-bezier(.4,0,.2,1);
+  transition:transform .38s cubic-bezier(.4,0,.2,1);
   pointer-events:none;
 }
 .nav-btn{
   position:relative;
-  background:none; border:none; width:44px; height:38px;
-  display:flex; align-items:center; justify-content:center; gap:0;
-  border-radius:20px; color:rgba(255,255,255,0.5);
+  background:none; border:none; width:38px; height:38px;
+  display:flex; align-items:center; justify-content:center;
+  border-radius:19px; color:rgba(255,255,255,0.45);
   z-index:1;
-  transition:width .35s cubic-bezier(.4,0,.2,1), color .25s;
-  overflow:hidden;
+  transition:color .25s;
 }
-.nav-btn.active{color:#fff; width:auto; padding:0 12px 0 10px;}
+.nav-btn.active{color:#fff;}
 .nav-btn .icon{width:19px; height:19px; flex-shrink:0;}
-.nav-label{
-  display:inline-block; max-width:0; opacity:0; overflow:hidden; white-space:nowrap;
-  font-size:10.5px; font-weight:800; letter-spacing:0;
-  transition:max-width .35s cubic-bezier(.4,0,.2,1), opacity .25s, margin .35s cubic-bezier(.4,0,.2,1);
-}
-.nav-btn.active .nav-label{max-width:58px; opacity:1; margin-left:5px;}
 .nav-add{
   position:relative;
-  width:50px; height:50px; border-radius:50%;
+  width:48px; height:48px; border-radius:50%;
   background:var(--grad-orange);
-  color:white; margin:0 3px;
+  color:white; margin:0 4px;
   display:flex; align-items:center; justify-content:center;
-  box-shadow:0 10px 22px -3px rgba(255,90,60,.5), 0 0 0 4px rgba(16,16,18,0.8), inset 0 1px 0 rgba(255,255,255,.35);
+  box-shadow:0 9px 20px -3px rgba(255,90,60,.45), 0 0 0 4px rgba(16,16,18,0.76), inset 0 1px 0 rgba(255,255,255,.3);
   transform:translateY(-7px);
   z-index:2;
   transition:transform .3s var(--ease-spring);
@@ -847,13 +840,13 @@ li.task.done .t-text{color:var(--sub); text-decoration:line-through; font-weight
   border-radius:50%;
   background:var(--glow-gradient);
   filter:blur(10px);
-  opacity:.35;
+  opacity:.28;
   z-index:-1;
   animation:spin 7s linear infinite reverse;
 }
 .nav-add::before{
   content:"";
-  position:absolute; top:4px; left:8px; width:17px; height:8px; border-radius:50%;
+  position:absolute; top:4px; left:8px; width:16px; height:7px; border-radius:50%;
   background:rgba(255,255,255,.4); filter:blur(3px);
   pointer-events:none;
 }
@@ -1327,22 +1320,18 @@ li.task.done .t-text{color:var(--sub); text-decoration:line-through; font-weight
     <div class="nav-indicator" id="navIndicator"></div>
     <button class="nav-btn active" data-view="home" aria-label="home">
       <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v9a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1v-9"/></svg></span>
-      <span class="nav-label">Home</span>
     </button>
     <button class="nav-btn" data-view="chat" aria-label="assistent">
       <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l1.6 4.6L18 8l-4.4 1.6L12 14l-1.6-4.4L6 8l4.4-1.4L12 2z"/><path d="M19 13.5l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8.8-2z"/></svg></span>
-      <span class="nav-label">AI</span>
     </button>
     <button class="nav-add" id="navAdd" aria-label="nieuwe taak">
       <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span>
     </button>
     <button class="nav-btn" data-view="overview" aria-label="kalender">
       <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15.5" rx="3.5"/><line x1="3.5" y1="10" x2="20.5" y2="10"/><line x1="8" y1="3" x2="8" y2="7"/><line x1="16" y1="3" x2="16" y2="7"/></svg></span>
-      <span class="nav-label">Kalender</span>
     </button>
     <button class="nav-btn" data-view="settings" aria-label="profiel">
       <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></span>
-      <span class="nav-label">Profiel</span>
     </button>
   </div>
 </nav>
@@ -2174,15 +2163,27 @@ li.task.done .t-text{color:var(--sub); text-decoration:line-through; font-weight
     saveChat(); renderChat(); addTyping();
 
     var taskSnapshot = tasks.map(function(t){ return { id:t.id, text:t.text, done:t.done, date:t.date || todayStr(), time:t.time || null }; });
+    // Kant-en-klare datumtabel meegeven i.p.v. het model zelf datums te laten uitrekenen —
+    // dat gaat regelmatig mis en zorgt dan dat taken op de verkeerde dag (of helemaal niet
+    // zichtbaar) in de kalender belanden.
+    var dateLookup = [];
+    for(var dOff = 0; dOff < 14; dOff++){
+      var dRef = new Date(); dRef.setDate(dRef.getDate() + dOff);
+      var wdName = dRef.toLocaleDateString('nl-NL', { weekday:'long' });
+      var label = dOff === 0 ? 'vandaag' : dOff === 1 ? 'morgen' : wdName;
+      dateLookup.push(label + '=' + todayStr(dRef));
+    }
     var sys = 'Je bent een behulpzame Nederlandstalige to-do- en planningsassistent in een app met een kalender. ' +
       'Vandaag is ' + todayStr() + ' (' + new Date().toLocaleDateString('nl-NL',{weekday:'long'}) + '). ' +
-      'Je kunt taken plannen op willekeurige datums, niet alleen vandaag — reken relatieve tijdsaanduidingen ("morgen", "volgende week vrijdag", "over 3 dagen") zelf om naar een datum in YYYY-MM-DD formaat. ' +
+      'Datumreferentie voor de komende 14 dagen (gebruik ALTIJD exact deze datums, reken zelf niets uit): ' + dateLookup.join(', ') + '. ' +
+      'Voor "volgende week [dag]" of dagen verder dan deze lijst: tel door vanaf vandaag ' + todayStr() + '. ' +
+      'BELANGRIJK: als de gebruiker een taak wil INPLANNEN of een dag/moment noemt (bv. "plan X voor vrijdag", "zet Y in de agenda", "morgen om 14:00"), geef dan ALTIJD een "date" mee in YYYY-MM-DD formaat uit de referentie hierboven, anders verschijnt de taak niet op de juiste dag in de kalender. Is er geen tijdstip genoemd maar wel een dag/planningsintentie, geef dan toch een "date" mee (tijd mag leeg) — laat "date" alleen weg bij een losse to-do zonder enige tijdsaanduiding. ' +
       'Je kunt taken beheren via acties. Huidige taken met hun datum/tijd (JSON): ' + JSON.stringify(taskSnapshot) + '. ' +
       'Antwoord ALTIJD ALLEEN met geldige JSON in dit formaat: {"reply": "korte vriendelijke reactie in het Nederlands", "actions": [ ' +
       '{"type":"add","text":"...","priority":"laag|normaal|hoog","date":"YYYY-MM-DD","time":"HH:MM"} | ' +
       '{"type":"complete","id":"..."} | {"type":"uncomplete","id":"..."} | {"type":"delete","id":"..."} | {"type":"edit","id":"...","text":"..."} | ' +
       '{"type":"reschedule","id":"...","date":"YYYY-MM-DD","time":"HH:MM"} ]}. ' +
-      'Bij "add" mogen "date" en "time" weggelaten worden (dan wordt vandaag zonder tijdstip gebruikt). Gebruik "reschedule" om een bestaande taak te verplaatsen naar een andere dag of tijd. ' +
+      'Gebruik "reschedule" om een bestaande taak te verplaatsen naar een andere dag of tijd. ' +
       'Gebruik "actions": [] als er niets hoeft te veranderen. Gebruik alleen bestaande id\'s uit de lijst hierboven.';
 
     var recent = chatHistory.slice(-8).map(function(m){ return { role: m.role, content: m.content }; });
