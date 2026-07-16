@@ -1901,7 +1901,7 @@ li.task.done .t-text{color:var(--sub); text-decoration:line-through; font-weight
     var url = 'https://generativelanguage.googleapis.com/v1beta/models/' + getModel() + ':generateContent?key=' + encodeURIComponent(key);
     return fetch(url, {
       method:'POST',
-      headers:{ 'Content-Type':'application/json' },
+      headers:{ 'Content-Type':'application/json', 'x-goog-api-key': key },
       body: JSON.stringify(body)
     }).then(function(res){
       if(!res.ok){
@@ -2866,10 +2866,28 @@ li.task.done .t-text{color:var(--sub); text-decoration:line-through; font-weight
   renderChat();
   renderStats();
   updateNavIndicator();
-  setTimeout(function(){
-    var splash = document.getElementById('splash');
-    if(splash) splash.classList.add('hide');
-  }, 900);
+  (function(){
+    var MIN_SPLASH_MS = 650;
+    var MAX_SPLASH_MS = 2400;
+    var startedAt = Date.now();
+    var hidden = false;
+    function hideSplash(){
+      if(hidden) return;
+      hidden = true;
+      var elapsed = Date.now() - startedAt;
+      var wait = Math.max(0, MIN_SPLASH_MS - elapsed);
+      setTimeout(function(){
+        var splash = document.getElementById('splash');
+        if(splash) splash.classList.add('hide');
+      }, wait);
+    }
+    if(document.readyState === 'complete'){
+      hideSplash();
+    } else {
+      window.addEventListener('load', hideSplash);
+    }
+    setTimeout(hideSplash, MAX_SPLASH_MS); // vangnet: nooit langer blijven hangen dan dit
+  })();
   // Standaard Firebase-project (Task mangement) — al voor je aangemaakt en verbonden.
   // Firebase web-config is niet geheim (beveiliging loopt via de Firestore rules hierboven), dus dit mag hier gewoon staan.
   var DEFAULT_FIREBASE_CONFIG = {
