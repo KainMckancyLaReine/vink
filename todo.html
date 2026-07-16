@@ -18,7 +18,7 @@
 <link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#FAFAF9;
@@ -179,6 +179,19 @@ button{transition:transform .18s var(--ease-spring);}
   font-size:13px; font-weight:800; color:var(--orange-dark); font-family:var(--font-display);
 }
 
+.home-hero{
+  position:relative; height:132px; overflow:hidden;
+  border-radius:var(--radius-xl); margin:6px 20px 4px;
+  box-shadow:var(--shadow); border:1px solid rgba(0,0,0,0.03);
+  display:flex; align-items:flex-end;
+}
+.home-hero-scrim{
+  position:absolute; inset:0; z-index:1;
+  background:linear-gradient(to top, rgba(20,14,10,.58) 0%, rgba(20,14,10,.15) 55%, transparent 85%);
+}
+.home-hero-text{position:relative; z-index:2; padding:16px 18px; color:#fff;}
+.home-hero-eyebrow{font-size:10.5px; font-weight:800; text-transform:uppercase; letter-spacing:.6px; opacity:.9;}
+.home-hero-quote{font-family:var(--font-display); font-size:16px; font-weight:700; margin-top:4px; letter-spacing:-0.2px; text-shadow:0 2px 8px rgba(0,0,0,.3); line-height:1.3;}
 .chips{
   display:flex; gap:9px;
   padding:18px 20px 14px;
@@ -217,6 +230,7 @@ button{transition:transform .18s var(--ease-spring);}
 .empty .big{display:flex; justify-content:center; margin-bottom:12px; animation:floaty 3s ease-in-out infinite; color:var(--orange);}
 .empty .big svg{width:46px; height:46px;}
 .empty-scene{
+  position:relative;
   width:92px; height:92px; border-radius:50%; overflow:hidden; margin:0 auto 16px;
   box-shadow:0 14px 28px -10px rgba(255,90,60,.35), 0 0 0 5px var(--surface);
   animation:floaty 3s ease-in-out infinite;
@@ -652,6 +666,11 @@ li.task.done .t-text{color:var(--sub); text-decoration:line-through; font-weight
 #splash.hide{opacity:0; visibility:hidden; pointer-events:none;}
 .calm-scene{position:absolute; inset:0; z-index:0; overflow:hidden;}
 .calm-scene svg{width:100%; height:100%; display:block;}
+.calm-photo{
+  position:absolute; inset:0; width:100%; height:100%;
+  object-fit:cover; object-position:center; display:block;
+  opacity:.9; animation:fadeIn .6s ease;
+}
 #splash .calm-scene{opacity:.9;}
 .auth-hero{
   position:relative; height:150px; overflow:hidden;
@@ -799,6 +818,9 @@ li.task.done .t-text{color:var(--sub); text-decoration:line-through; font-weight
       <path d="M0,300 C70,278 130,300 190,286 C250,272 300,296 400,278 L400,400 L0,400 Z" fill="#FFB49A" opacity=".65"/>
       <path d="M0,340 C80,322 160,344 240,328 C300,316 350,332 400,324 L400,400 L0,400 Z" fill="#FAFAF9" opacity="1"/>
     </svg>
+    <img class="calm-photo" alt="" loading="eager"
+      src="https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?q=75&amp;w=900&amp;auto=format&amp;fit=crop"
+      onerror="this.remove()">
   </div>
   <svg class="splash-icon" viewBox="0 0 100 100">
     <defs>
@@ -833,6 +855,37 @@ li.task.done .t-text{color:var(--sub); text-decoration:line-through; font-weight
     </div>
   </div>
 
+  <div class="home-hero">
+    <div class="calm-scene">
+      <svg viewBox="0 0 400 170" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="sceneSkyHome" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#FFDFC0"/>
+            <stop offset="55%" stop-color="#FFB6A8"/>
+            <stop offset="100%" stop-color="#D9A6DE"/>
+          </linearGradient>
+          <radialGradient id="sceneSunHome" cx="75%" cy="18%" r="55%">
+            <stop offset="0" stop-color="#FFF6DE" stop-opacity=".9"/>
+            <stop offset="100%" stop-color="#FFF6DE" stop-opacity="0"/>
+          </radialGradient>
+        </defs>
+        <rect width="400" height="170" fill="url(#sceneSkyHome)"/>
+        <circle cx="300" cy="35" r="130" fill="url(#sceneSunHome)"/>
+        <circle cx="300" cy="30" r="22" fill="#FFF1D6" opacity=".9"/>
+        <path d="M0,95 C60,78 110,94 160,84 C210,74 260,90 320,78 C360,70 390,82 400,76 L400,170 L0,170 Z" fill="#FFB49A" opacity=".8"/>
+        <path d="M0,120 C70,105 130,120 190,108 C250,96 300,114 400,100 L400,170 L0,170 Z" fill="#D98CAE" opacity=".75"/>
+      </svg>
+      <img class="calm-photo" alt="" loading="lazy"
+        src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=75&amp;w=900&amp;auto=format&amp;fit=crop"
+        onerror="this.remove()">
+    </div>
+    <div class="home-hero-scrim"></div>
+    <div class="home-hero-text">
+      <div class="home-hero-eyebrow">Even een moment voor jezelf</div>
+      <div class="home-hero-quote" id="homeHeroQuote">Rustig aan. Eén taak tegelijk.</div>
+    </div>
+  </div>
+
   <div class="chips">
     <button class="chip active" data-filter="all">Alles</button>
     <button class="chip" data-filter="active">Open</button>
@@ -861,6 +914,9 @@ li.task.done .t-text{color:var(--sub); text-decoration:line-through; font-weight
           <path d="M0,120 C30,105 55,118 80,110 C105,102 130,116 160,106 C180,100 195,108 200,104 L200,200 L0,200 Z" fill="#FFB49A" opacity=".8"/>
           <path d="M0,145 C35,132 65,146 95,137 C125,128 150,142 200,130 L200,200 L0,200 Z" fill="#E890AC" opacity=".75"/>
         </svg>
+        <img class="calm-photo" alt="" loading="lazy"
+          src="https://images.unsplash.com/photo-1472214103451-9374bd1c798e?q=75&amp;w=400&amp;auto=format&amp;fit=crop"
+          onerror="this.remove()">
       </div>
       Nog niets te doen.<br>Tik op de + knop om te beginnen.
     </div>
@@ -975,6 +1031,9 @@ li.task.done .t-text{color:var(--sub); text-decoration:line-through; font-weight
             <path d="M0,185 C70,165 130,186 190,172 C250,158 300,180 400,162 L400,260 L0,260 Z" fill="#F08C9E" opacity=".75"/>
             <path d="M0,215 C80,198 160,218 240,204 C300,194 350,208 400,200 L400,260 L0,260 Z" fill="#C97BB0" opacity=".65"/>
           </svg>
+          <img class="calm-photo" alt="" loading="lazy"
+            src="https://images.unsplash.com/photo-1500534623283-312aade485b7?q=75&amp;w=900&amp;auto=format&amp;fit=crop"
+            onerror="this.remove()">
         </div>
         <div class="auth-hero-badge">
           <svg viewBox="0 0 100 100">
@@ -1028,6 +1087,9 @@ li.task.done .t-text{color:var(--sub); text-decoration:line-through; font-weight
             <path d="M0,100 C60,80 110,98 160,88 C210,78 260,96 320,84 C360,76 390,88 400,82 L400,180 L0,180 Z" fill="#FFB49A" opacity=".75"/>
             <path d="M0,128 C70,112 130,128 190,118 C250,108 300,124 400,110 L400,180 L0,180 Z" fill="#EC93AC" opacity=".7"/>
           </svg>
+          <img class="calm-photo" alt="" loading="lazy"
+            src="https://images.unsplash.com/photo-1441974231531-c6227db76b6e?q=75&amp;w=900&amp;auto=format&amp;fit=crop"
+            onerror="this.remove()">
         </div>
         <div class="avatar-wrap">
           <div id="avatarCircle" class="profile-avatar-lg">?</div>
@@ -1335,6 +1397,23 @@ li.task.done .t-text{color:var(--sub); text-decoration:line-through; font-weight
     var d = new Date();
     var str = d.toLocaleDateString('nl-NL', { weekday:'long', day:'numeric', month:'long' });
     document.getElementById('dateLine').textContent = str.charAt(0).toUpperCase() + str.slice(1);
+  }
+
+  var CALM_QUOTES = [
+    'Rustig aan. Eén taak tegelijk.',
+    'Kleine stapjes tellen ook.',
+    'Adem in, adem uit — en begin.',
+    'Vandaag hoeft niet perfect te zijn.',
+    'Doe wat je kan, laat de rest los.',
+    'Een lege lijst is geen doel op zich.',
+    'Focus op wat écht telt vandaag.',
+    'Je hoeft het niet allemaal tegelijk te doen.'
+  ];
+  function setHomeHeroQuote(){
+    var el = document.getElementById('homeHeroQuote');
+    if(!el) return;
+    var dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(),0,0)) / 86400000);
+    el.textContent = CALM_QUOTES[dayOfYear % CALM_QUOTES.length];
   }
 
   /* ---------- Rendering tasks ---------- */
@@ -1668,7 +1747,7 @@ li.task.done .t-text{color:var(--sub); text-decoration:line-through; font-weight
   // LET OP: dit is een statische site zonder backend (GitHub Pages), dus alles hier in de
   // broncode is zichtbaar/uitleesbaar voor wie de pagina bezoekt ("view source"). Zet hier
   // dus alleen een key neer waarvan je het acceptabel vindt dat die openbaar zichtbaar is.
-  var DEFAULT_GEMINI_API_KEY = "AQ.Ab8RN6IsQsvcJwEHeMPUSG7DKx_E3keMe5ZLMKGb2xc7ks0f-g";
+  var DEFAULT_GEMINI_API_KEY = "";
   function getApiKey(){
     var own = (localStorage.getItem(LS_KEY) || '').trim();
     return own || DEFAULT_GEMINI_API_KEY;
@@ -2653,6 +2732,7 @@ li.task.done .t-text{color:var(--sub); text-decoration:line-through; font-weight
 
   /* ---------- Init ---------- */
   setGreeting();
+  setHomeHeroQuote();
   renderList();
   renderChat();
   renderStats();
