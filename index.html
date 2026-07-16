@@ -692,7 +692,21 @@ li.task.done .t-text{color:var(--sub); text-decoration:line-through; font-weight
   object-fit:cover; object-position:center; display:block;
   opacity:.9; animation:fadeIn .6s ease;
 }
-#splash .calm-scene{opacity:.9;}
+#splash .calm-scene{opacity:.95;}
+#splash .calm-scene svg, #splash .calm-scene .calm-photo{
+  animation:kenBurns 9s ease-in-out infinite alternate;
+  transform-origin:50% 65%;
+}
+@keyframes kenBurns{
+  from{ transform:scale(1.06) translate(0,0); }
+  to{ transform:scale(1.16) translate(-1%,-2%); }
+}
+#splash::after{
+  content:"";
+  position:absolute; inset:0; z-index:0;
+  background:linear-gradient(to bottom, rgba(250,250,249,0) 40%, var(--bg) 92%);
+  pointer-events:none;
+}
 .auth-hero{
   position:relative; height:150px; overflow:hidden;
   border-radius:var(--radius-xl); margin:4px 20px 20px;
@@ -712,31 +726,46 @@ li.task.done .t-text{color:var(--sub); text-decoration:line-through; font-weight
   color:#4A2E1E; text-shadow:0 2px 10px rgba(255,255,255,.5);
 }
 .splash-badge{
-  position:relative; z-index:1; width:104px; height:104px; border-radius:50%;
-  background:rgba(255,255,255,.85); -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px);
+  position:relative; z-index:1; width:110px; height:110px; border-radius:50%;
+  background:rgba(255,255,255,.88); -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px);
   display:flex; align-items:center; justify-content:center;
-  box-shadow:0 16px 34px -8px rgba(255,90,60,.35), 0 0 0 1px rgba(255,255,255,.5);
-  animation:splashPop .7s var(--ease-spring), splashGlow 2.4s ease-in-out .7s infinite;
+  box-shadow:0 18px 38px -8px rgba(255,90,60,.4), 0 0 0 1px rgba(255,255,255,.55);
+  animation:splashPop .75s var(--ease-spring) backwards, splashGlow 2.4s ease-in-out .8s infinite;
 }
-#splash .splash-icon{width:54px; height:54px; display:block;}
+#splash .splash-icon{width:56px; height:56px; display:block;}
 #splash .splash-word{
   position:relative; z-index:1;
-  font-family:var(--font-display); font-size:32px; font-weight:800; letter-spacing:-0.8px;
-  color:var(--text); margin-top:16px; text-shadow:0 2px 14px rgba(255,255,255,.65);
-  animation:splashPop .7s var(--ease-spring) .05s backwards;
+  font-family:var(--font-display); font-size:34px; font-weight:800; letter-spacing:-0.9px;
+  color:var(--text); margin-top:18px; text-shadow:0 2px 16px rgba(255,255,255,.7);
+  animation:splashPop .7s var(--ease-spring) .12s backwards;
 }
-.splash-dots{position:relative; z-index:1; display:flex; gap:6px; margin-top:18px;}
-.splash-dots span{width:7px; height:7px; border-radius:50%; background:var(--orange); animation:splashDot 1.2s infinite ease-in-out; opacity:.4;}
-.splash-dots span:nth-child(2){animation-delay:.15s;}
-.splash-dots span:nth-child(3){animation-delay:.3s;}
-@keyframes splashDot{0%,80%,100%{transform:translateY(0); opacity:.35;} 40%{transform:translateY(-5px); opacity:1;}}
+.splash-tagline{
+  position:relative; z-index:1;
+  font-size:13.5px; font-weight:600; color:#6B4A32; margin-top:5px;
+  text-shadow:0 2px 10px rgba(255,255,255,.6);
+  animation:splashPop .7s var(--ease-spring) .2s backwards;
+}
+.splash-progress{
+  position:relative; z-index:1; width:120px; height:5px; border-radius:4px;
+  background:rgba(120,80,60,.14); overflow:hidden; margin-top:26px;
+  animation:splashPop .7s var(--ease-spring) .3s backwards;
+}
+.splash-progress-fill{
+  position:absolute; top:0; bottom:0; width:40%; border-radius:4px;
+  background:linear-gradient(90deg, transparent, var(--orange) 45%, var(--pink) 100%);
+  animation:splashSlide 1.3s cubic-bezier(.4,0,.2,1) infinite;
+}
+@keyframes splashSlide{
+  0%{ left:-40%; }
+  100%{ left:100%; }
+}
 @keyframes splashPop{
   from{ opacity:0; transform:translateY(14px) scale(.9); }
   to{ opacity:1; transform:none; }
 }
 @keyframes splashGlow{
-  0%,100%{ box-shadow:0 16px 34px -8px rgba(255,90,60,.35), 0 0 0 1px rgba(255,255,255,.5); }
-  50%{ box-shadow:0 16px 46px -6px rgba(255,90,60,.55), 0 0 0 1px rgba(255,255,255,.5); }
+  0%,100%{ box-shadow:0 18px 38px -8px rgba(255,90,60,.4), 0 0 0 1px rgba(255,255,255,.55); }
+  50%{ box-shadow:0 18px 50px -6px rgba(255,90,60,.6), 0 0 0 1px rgba(255,255,255,.55); }
 }
 
 /* ---------- Toast ---------- */
@@ -877,7 +906,8 @@ li.task.done .t-text{color:var(--sub); text-decoration:line-through; font-weight
     </svg>
   </div>
   <div class="splash-word">Vink</div>
-  <div class="splash-dots"><span></span><span></span><span></span></div>
+  <div class="splash-tagline">Rustig plannen, samen doen.</div>
+  <div class="splash-progress"><div class="splash-progress-fill"></div></div>
 </div>
 
 <!-- HOME -->
@@ -1217,24 +1247,30 @@ li.task.done .t-text{color:var(--sub); text-decoration:line-through; font-weight
       <span class="chev" id="advSettingsChev">›</span>
     </button>
     <div id="advancedSettingsPanel" style="display:none;">
-      <div class="field-label">Gemini API-key <span id="apiKeyStatusBadge" style="text-transform:none; font-weight:700; color:var(--success);"></span></div>
+      <div class="field-label">AI-provider</div>
       <div class="field-card">
         <div class="field-row">
-          <input type="password" id="apiKeyInput" placeholder="Standaard key actief — vul hier je eigen key in om te overschrijven">
+          <select id="providerSelect">
+            <option value="groq">Groq (aanbevolen, gratis &amp; snel)</option>
+            <option value="gemini">Google Gemini</option>
+          </select>
+        </div>
+      </div>
+      <div class="note" id="providerNote"></div>
+
+      <div class="field-label">API-key <span id="apiKeyStatusBadge" style="text-transform:none; font-weight:700; color:var(--success);"></span></div>
+      <div class="field-card">
+        <div class="field-row">
+          <input type="password" id="apiKeyInput" placeholder="Plak hier je API-key">
           <button class="mini-btn" id="toggleKey">Toon</button>
         </div>
       </div>
-      <div class="note" id="apiKeyNote">Je key wordt alleen lokaal op dit toestel opgeslagen en rechtstreeks naar Google Gemini gestuurd — nooit gedeeld met iemand anders. Een key maak je gratis op aistudio.google.com/apikey.</div>
+      <div class="note" id="apiKeyNote"></div>
 
       <div class="field-label">Model</div>
       <div class="field-card">
         <div class="field-row">
-          <select id="modelSelect">
-            <option value="gemini-flash-latest">gemini-flash-latest (snel &amp; goedkoop)</option>
-            <option value="gemini-3.5-flash">gemini-3.5-flash</option>
-            <option value="gemini-3.1-pro">gemini-3.1-pro (krachtiger)</option>
-            <option value="gemini-3-pro">gemini-3-pro</option>
-          </select>
+          <select id="modelSelect"></select>
         </div>
       </div>
 
@@ -1381,6 +1417,7 @@ li.task.done .t-text{color:var(--sub); text-decoration:line-through; font-weight
   var LS_TASKS = 'do-tasks-v1';
   var LS_KEY = 'do-openai-key';
   var LS_MODEL = 'do-openai-model';
+  var LS_PROVIDER = 'do-ai-provider';
   var LS_AUTOSUGGEST = 'do-autosuggest';
   var LS_NOTIF = 'do-notifications';
   var LS_CHAT = 'do-chat-history';
@@ -1861,33 +1898,73 @@ li.task.done .t-text{color:var(--sub); text-decoration:line-through; font-weight
   });
   clearBtn.addEventListener('click', clearDoneTasks);
 
-  /* ---------- OpenAI helper ---------- */
-  // Standaard Gemini API-key: al actief voor elk account, zodat AI-functies meteen werken
-  // zonder dat iemand eerst zelf een key hoeft aan te maken. Iedereen kan 'm bij
-  // Instellingen nog altijd overschrijven met een eigen key.
+  /* ---------- AI helper: meerdere providers ---------- */
   // LET OP: dit is een statische site zonder backend (GitHub Pages), dus alles hier in de
   // broncode is zichtbaar/uitleesbaar voor wie de pagina bezoekt ("view source"). Zet hier
   // dus alleen een key neer waarvan je het acceptabel vindt dat die openbaar zichtbaar is.
   var DEFAULT_GEMINI_API_KEY = "AQ.Ab8RN6KomUo4kDY5QjZHAXv5LlDDL_Brx9Zf200XO1JUsr2olQ";
+  var DEFAULT_GROQ_API_KEY = ""; // geen gratis Groq-key beschikbaar om standaard in te bakken — gebruiker moet zelf een (gratis) key ophalen op console.groq.com/keys
+
+  var GROQ_MODELS = ['llama-3.3-70b-versatile', 'llama-3.1-8b-instant', 'gemma2-9b-it'];
+  var GEMINI_MODELS = ['gemini-flash-latest', 'gemini-3.5-flash', 'gemini-3.1-pro', 'gemini-3-pro'];
+  var DEPRECATED_GEMINI_MODELS = ['gemini-2.5-flash','gemini-2.5-pro','gemini-2.0-flash','gemini-2.0-flash-lite','gpt-4o-mini','gpt-4o','gpt-4.1-mini'];
+
+  function getProvider(){
+    var p = localStorage.getItem(LS_PROVIDER);
+    return (p === 'gemini' || p === 'groq') ? p : 'groq';
+  }
+  function defaultKeyFor(provider){
+    return provider === 'gemini' ? DEFAULT_GEMINI_API_KEY : DEFAULT_GROQ_API_KEY;
+  }
   function getApiKey(){
     var own = (localStorage.getItem(LS_KEY) || '').trim();
-    return own || DEFAULT_GEMINI_API_KEY;
+    return own || defaultKeyFor(getProvider());
   }
   function hasOwnApiKey(){ return !!(localStorage.getItem(LS_KEY) || '').trim(); }
-  function hasDefaultApiKey(){ return !!DEFAULT_GEMINI_API_KEY; }
-  var DEPRECATED_MODELS = ['gemini-2.5-flash','gemini-2.5-pro','gemini-2.0-flash','gemini-2.0-flash-lite','gpt-4o-mini','gpt-4o','gpt-4.1-mini'];
+  function hasDefaultApiKey(){ return !!defaultKeyFor(getProvider()); }
+
   function getModel(){
+    var provider = getProvider();
     var m = localStorage.getItem(LS_MODEL);
-    if(!m || DEPRECATED_MODELS.indexOf(m) !== -1) return 'gemini-flash-latest';
+    if(provider === 'groq'){
+      if(!m || GROQ_MODELS.indexOf(m) === -1) return GROQ_MODELS[0];
+      return m;
+    }
+    if(!m || DEPRECATED_GEMINI_MODELS.indexOf(m) !== -1 || GROQ_MODELS.indexOf(m) !== -1) return 'gemini-flash-latest';
     return m;
   }
 
   function callOpenAI(messages, jsonMode){
     var key = getApiKey();
     if(!key){
-      showToast('Voeg eerst je Gemini-key toe bij Instellingen');
+      showToast('Voeg eerst je AI-key toe bij Instellingen');
       return Promise.reject(new Error('no-key'));
     }
+    var provider = getProvider();
+
+    if(provider === 'groq'){
+      var groqBody = { model: getModel(), messages: messages, temperature: 0.6 };
+      if(jsonMode) groqBody.response_format = { type: 'json_object' };
+      return fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method:'POST',
+        headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer ' + key },
+        body: JSON.stringify(groqBody)
+      }).then(function(res){
+        if(!res.ok){
+          return res.json().catch(function(){return {};}).then(function(err){
+            var msg = (err && err.error && err.error.message) ? err.error.message : ('HTTP ' + res.status);
+            throw new Error(msg);
+          });
+        }
+        return res.json();
+      }).then(function(data){
+        var content = data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
+        if(!content) throw new Error('Leeg antwoord van AI');
+        return content;
+      });
+    }
+
+    // Gemini
     var sysText = messages.filter(function(m){return m.role === 'system';}).map(function(m){return m.content;}).join('\n');
     var contents = messages.filter(function(m){return m.role !== 'system';}).map(function(m){
       return { role: m.role === 'assistant' ? 'model' : 'user', parts: [{ text: m.content }] };
@@ -2161,18 +2238,47 @@ li.task.done .t-text{color:var(--sub); text-decoration:line-through; font-weight
   /* ---------- Settings ---------- */
   var apiKeyInput = document.getElementById('apiKeyInput');
   var modelSelect = document.getElementById('modelSelect');
+  var providerSelect = document.getElementById('providerSelect');
   var autoSuggest = document.getElementById('autoSuggest');
   var toggleKey = document.getElementById('toggleKey');
   var notifToggle = document.getElementById('notifToggle');
 
+  var MODEL_LABELS = {
+    'llama-3.3-70b-versatile': 'llama-3.3-70b-versatile (krachtig & snel)',
+    'llama-3.1-8b-instant': 'llama-3.1-8b-instant (razendsnel)',
+    'gemma2-9b-it': 'gemma2-9b-it',
+    'gemini-flash-latest': 'gemini-flash-latest (snel & goedkoop)',
+    'gemini-3.5-flash': 'gemini-3.5-flash',
+    'gemini-3.1-pro': 'gemini-3.1-pro (krachtiger)',
+    'gemini-3-pro': 'gemini-3-pro'
+  };
+
+  function populateModelOptions(){
+    var provider = providerSelect.value;
+    var list = provider === 'groq' ? GROQ_MODELS : GEMINI_MODELS;
+    modelSelect.innerHTML = '';
+    list.forEach(function(m){
+      var opt = document.createElement('option');
+      opt.value = m;
+      opt.textContent = MODEL_LABELS[m] || m;
+      modelSelect.appendChild(opt);
+    });
+    modelSelect.value = getModel();
+  }
+
+  providerSelect.value = getProvider();
+  populateModelOptions();
   apiKeyInput.value = (localStorage.getItem(LS_KEY) || '').trim();
-  modelSelect.value = getModel();
   autoSuggest.checked = loadJSON(LS_AUTOSUGGEST, true);
   notifToggle.checked = loadJSON(LS_NOTIF, false) && (typeof Notification !== 'undefined' && Notification.permission === 'granted');
 
   function updateApiKeyBadge(){
     var badge = document.getElementById('apiKeyStatusBadge');
     var note = document.getElementById('apiKeyNote');
+    var providerNote = document.getElementById('providerNote');
+    var provider = providerSelect.value;
+    var providerLabel = provider === 'groq' ? 'Groq' : 'Google Gemini';
+    var keyUrl = provider === 'groq' ? 'console.groq.com/keys' : 'aistudio.google.com/apikey';
     if(!badge) return;
     if(hasOwnApiKey()){
       badge.textContent = '· eigen key actief';
@@ -2186,11 +2292,21 @@ li.task.done .t-text{color:var(--sub); text-decoration:line-through; font-weight
     }
     if(note){
       note.textContent = hasDefaultApiKey()
-        ? 'Er staat al een standaard AI-key klaar, dus AI-functies werken direct. Vul je eigen key in om die te gebruiken in plaats van de standaard — je key wordt alleen lokaal op dit toestel opgeslagen en rechtstreeks naar Google Gemini gestuurd. Een eigen key maak je gratis op aistudio.google.com/apikey.'
-        : 'Je key wordt alleen lokaal op dit toestel opgeslagen en rechtstreeks naar Google Gemini gestuurd — nooit gedeeld met iemand anders. Een key maak je gratis op aistudio.google.com/apikey.';
+        ? 'Er staat al een standaard AI-key klaar, dus AI-functies werken direct. Vul je eigen key in om die te gebruiken in plaats van de standaard — je key wordt alleen lokaal op dit toestel opgeslagen en rechtstreeks naar ' + providerLabel + ' gestuurd. Een eigen key maak je gratis op ' + keyUrl + '.'
+        : 'Je key wordt alleen lokaal op dit toestel opgeslagen en rechtstreeks naar ' + providerLabel + ' gestuurd — nooit gedeeld met iemand anders. Een gratis key maak je op ' + keyUrl + '.';
+    }
+    if(providerNote){
+      providerNote.textContent = provider === 'groq'
+        ? 'Groq is een gratis, razendsnel AI-platform (geen creditcard nodig). Maak in 1 minuut een key op console.groq.com/keys.'
+        : 'Let op: Google Gemini-keys werken soms alleen als ze zijn aangemaakt zonder koppeling aan een bestaand Google Cloud-project.';
     }
   }
   updateApiKeyBadge();
+
+  providerSelect.addEventListener('change', function(){
+    populateModelOptions();
+    updateApiKeyBadge();
+  });
 
   toggleKey.addEventListener('click', function(){
     var isPw = apiKeyInput.type === 'password';
@@ -2226,6 +2342,7 @@ li.task.done .t-text{color:var(--sub); text-decoration:line-through; font-weight
   }
 
   document.getElementById('saveSettings').addEventListener('click', function(){
+    localStorage.setItem(LS_PROVIDER, providerSelect.value);
     localStorage.setItem(LS_KEY, apiKeyInput.value.trim());
     localStorage.setItem(LS_MODEL, modelSelect.value);
     saveJSON(LS_AUTOSUGGEST, autoSuggest.checked);
