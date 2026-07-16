@@ -557,6 +557,27 @@ li.task.done .t-text{color:var(--sub); text-decoration:line-through; font-weight
 .progress-track{height:8px; border-radius:5px; background:var(--border); overflow:hidden;}
 .progress-fill{height:100%; width:0%; border-radius:5px; background:var(--grad-orange); transition:width .6s var(--ease-spring);}
 .field-label{font-size:13px; font-weight:700; color:var(--sub); margin:20px 20px 9px; letter-spacing:0.2px;}
+/* ---------- Weekroute (streak) ---------- */
+.route-card{
+  margin:0 20px 8px; background:var(--surface); border-radius:var(--radius-lg);
+  padding:16px 6px 10px; box-shadow:var(--shadow); border:1px solid rgba(0,0,0,0.03);
+  overflow:hidden;
+}
+.route-svg{width:100%; height:auto; max-height:340px; display:block;}
+.route-shadow{fill:none; stroke:#D8A6BE; stroke-width:34; stroke-linecap:round; opacity:.55; transform:translateY(6px);}
+.route-road{fill:none; stroke:url(#routeGrad); stroke-width:28; stroke-linecap:round; filter:drop-shadow(0 3px 3px rgba(255,61,158,.25));}
+.route-stripe{fill:none; stroke:rgba(255,255,255,.5); stroke-width:4; stroke-linecap:round; stroke-dasharray:1 15;}
+.route-signpost{filter:drop-shadow(0 3px 4px rgba(0,0,0,.18));}
+.route-marker{animation:routeBob 1.6s ease-in-out infinite;}
+@keyframes routeBob{0%,100%{transform:translateY(0);} 50%{transform:translateY(-5px);}}
+.route-node circle{fill:var(--surface); stroke:var(--border); stroke-width:3;}
+.route-node text{font-family:var(--font-display); font-size:14px; font-weight:800; fill:var(--sub); text-anchor:middle; dominant-baseline:middle;}
+.route-node.done circle{fill:url(#routeGrad); stroke:#fff; stroke-width:3;}
+.route-node.done text{fill:#fff;}
+.route-node.today circle{fill:#fff; stroke:#FF3D9E; stroke-width:4;}
+.route-node.today text{fill:#FF3D9E;}
+.route-node.future circle{fill:transparent; stroke:rgba(0,0,0,.13); stroke-dasharray:3 5;}
+.route-node.future text{fill:var(--sub); opacity:.45;}
 .field-card{
   margin:0 20px; background:var(--surface); border-radius:var(--radius-md); box-shadow:var(--shadow);
   border:1px solid rgba(0,0,0,0.03);
@@ -586,7 +607,7 @@ li.task.done .t-text{color:var(--sub); text-decoration:line-through; font-weight
   display:flex; align-items:center; justify-content:center; font-size:16px;
 }
 .settings-btn.danger .sb-icon{background:#FFE3E1; color:var(--danger);}
-.settings-btn .chev{color:var(--sub); font-size:20px; font-weight:600; flex-shrink:0;}
+.settings-btn .chev{color:var(--sub); font-size:20px; font-weight:600; flex-shrink:0; display:inline-block; transition:transform .3s var(--ease-spring);}
 .friend-row{display:flex; align-items:center; gap:8px; margin:0 20px 8px;}
 .friend-row .settings-btn{margin:0; width:auto; flex:1; min-width:0;}
 .friend-chat-btn{
@@ -690,15 +711,32 @@ li.task.done .t-text{color:var(--sub); text-decoration:line-through; font-weight
   font-family:var(--font-display); font-size:21px; font-weight:800; letter-spacing:-0.5px;
   color:#4A2E1E; text-shadow:0 2px 10px rgba(255,255,255,.5);
 }
-#splash .splash-icon, #splash .splash-word{position:relative; z-index:1;}
-#splash .splash-icon{width:88px; height:88px; animation:splashPop .7s var(--ease-spring);}
-#splash .splash-word{
-  font-family:var(--font-display); font-size:32px; font-weight:800; letter-spacing:-0.8px;
-  color:var(--text); margin-top:14px; animation:splashPop .7s var(--ease-spring) .05s backwards;
+.splash-badge{
+  position:relative; z-index:1; width:104px; height:104px; border-radius:50%;
+  background:rgba(255,255,255,.85); -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px);
+  display:flex; align-items:center; justify-content:center;
+  box-shadow:0 16px 34px -8px rgba(255,90,60,.35), 0 0 0 1px rgba(255,255,255,.5);
+  animation:splashPop .7s var(--ease-spring), splashGlow 2.4s ease-in-out .7s infinite;
 }
+#splash .splash-icon{width:54px; height:54px; display:block;}
+#splash .splash-word{
+  position:relative; z-index:1;
+  font-family:var(--font-display); font-size:32px; font-weight:800; letter-spacing:-0.8px;
+  color:var(--text); margin-top:16px; text-shadow:0 2px 14px rgba(255,255,255,.65);
+  animation:splashPop .7s var(--ease-spring) .05s backwards;
+}
+.splash-dots{position:relative; z-index:1; display:flex; gap:6px; margin-top:18px;}
+.splash-dots span{width:7px; height:7px; border-radius:50%; background:var(--orange); animation:splashDot 1.2s infinite ease-in-out; opacity:.4;}
+.splash-dots span:nth-child(2){animation-delay:.15s;}
+.splash-dots span:nth-child(3){animation-delay:.3s;}
+@keyframes splashDot{0%,80%,100%{transform:translateY(0); opacity:.35;} 40%{transform:translateY(-5px); opacity:1;}}
 @keyframes splashPop{
   from{ opacity:0; transform:translateY(14px) scale(.9); }
   to{ opacity:1; transform:none; }
+}
+@keyframes splashGlow{
+  0%,100%{ box-shadow:0 16px 34px -8px rgba(255,90,60,.35), 0 0 0 1px rgba(255,255,255,.5); }
+  50%{ box-shadow:0 16px 46px -6px rgba(255,90,60,.55), 0 0 0 1px rgba(255,255,255,.5); }
 }
 
 /* ---------- Toast ---------- */
@@ -725,72 +763,72 @@ li.task.done .t-text{color:var(--sub); text-decoration:line-through; font-weight
 .navbar-inner{
   position:relative;
   pointer-events:auto;
-  display:flex; align-items:center; gap:2px;
-  background:rgba(16,16,18,0.78);
+  display:flex; align-items:center; gap:1px;
+  background:rgba(16,16,18,0.8);
   -webkit-backdrop-filter:blur(24px) saturate(180%);
   backdrop-filter:blur(24px) saturate(180%);
   border:1px solid rgba(255,255,255,0.08);
-  border-radius:32px;
-  padding:8px;
-  box-shadow:0 20px 50px rgba(0,0,0,0.32), inset 0 1px 0 rgba(255,255,255,0.06);
+  border-radius:28px;
+  padding:5px;
+  box-shadow:0 14px 34px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.06);
 }
 /* Vloeibare indicator die tussen de actieve tabs schuift ("liquid" pill) */
 .nav-indicator{
   position:absolute;
-  top:8px; height:48px; left:0; width:52px;
-  border-radius:24px;
-  background:linear-gradient(135deg, rgba(255,154,61,.9), rgba(255,61,110,.85));
-  box-shadow:0 8px 20px -4px rgba(255,90,60,.55), inset 0 1px 0 rgba(255,255,255,.25);
+  top:5px; height:38px; left:0; width:44px;
+  border-radius:20px;
+  background:linear-gradient(135deg, rgba(255,154,61,.92), rgba(255,61,110,.88));
+  box-shadow:0 6px 14px -3px rgba(255,90,60,.5), inset 0 1px 0 rgba(255,255,255,.25);
   z-index:0;
-  transition:transform .45s var(--ease-spring), width .45s var(--ease-spring);
+  transition:transform .38s cubic-bezier(.4,0,.2,1), width .38s cubic-bezier(.4,0,.2,1);
   pointer-events:none;
 }
 .nav-btn{
   position:relative;
-  background:none; border:none; width:52px; height:48px;
+  background:none; border:none; width:44px; height:38px;
   display:flex; align-items:center; justify-content:center; gap:0;
-  border-radius:24px; color:rgba(255,255,255,0.5);
+  border-radius:20px; color:rgba(255,255,255,0.5);
   z-index:1;
-  transition:width .4s var(--ease-spring), color .25s;
+  transition:width .35s cubic-bezier(.4,0,.2,1), color .25s;
   overflow:hidden;
 }
-.nav-btn.active{color:#fff; width:auto; padding:0 16px 0 14px;}
-.nav-btn .icon{width:23px; height:23px; flex-shrink:0;}
+.nav-btn.active{color:#fff; width:auto; padding:0 12px 0 10px;}
+.nav-btn .icon{width:19px; height:19px; flex-shrink:0;}
 .nav-label{
   display:inline-block; max-width:0; opacity:0; overflow:hidden; white-space:nowrap;
-  font-size:12.5px; font-weight:800; letter-spacing:-0.1px;
-  transition:max-width .4s var(--ease-spring), opacity .3s, margin .4s var(--ease-spring);
+  font-size:10.5px; font-weight:800; letter-spacing:0;
+  transition:max-width .35s cubic-bezier(.4,0,.2,1), opacity .25s, margin .35s cubic-bezier(.4,0,.2,1);
 }
-.nav-btn.active .nav-label{max-width:80px; opacity:1; margin-left:7px;}
+.nav-btn.active .nav-label{max-width:58px; opacity:1; margin-left:5px;}
 .nav-add{
   position:relative;
-  width:57px; height:57px; border-radius:50%;
+  width:50px; height:50px; border-radius:50%;
   background:var(--grad-orange);
-  color:white; margin:0 2px;
+  color:white; margin:0 3px;
   display:flex; align-items:center; justify-content:center;
-  box-shadow:0 12px 28px -2px rgba(255,90,60,.55), 0 0 0 4px rgba(16,16,18,0.78), inset 0 1px 0 rgba(255,255,255,.35);
-  transform:translateY(-9px);
+  box-shadow:0 10px 22px -3px rgba(255,90,60,.5), 0 0 0 4px rgba(16,16,18,0.8), inset 0 1px 0 rgba(255,255,255,.35);
+  transform:translateY(-7px);
   z-index:2;
   transition:transform .3s var(--ease-spring);
 }
-.nav-add:active{transform:translateY(-9px) scale(.88) rotate(90deg);}
+.nav-add:active{transform:translateY(-7px) scale(.88) rotate(90deg);}
 .nav-add::after{
   content:"";
-  position:absolute; inset:-6px;
+  position:absolute; inset:-5px;
   border-radius:50%;
   background:var(--glow-gradient);
-  filter:blur(11px);
-  opacity:.4;
+  filter:blur(10px);
+  opacity:.35;
   z-index:-1;
   animation:spin 7s linear infinite reverse;
 }
 .nav-add::before{
   content:"";
-  position:absolute; top:4px; left:9px; width:20px; height:9px; border-radius:50%;
+  position:absolute; top:4px; left:8px; width:17px; height:8px; border-radius:50%;
   background:rgba(255,255,255,.4); filter:blur(3px);
   pointer-events:none;
 }
-.nav-add .icon{width:26px; height:26px; transition:transform .3s var(--ease-spring);}
+.nav-add .icon{width:22px; height:22px; transition:transform .3s var(--ease-spring);}
 @keyframes spin{from{transform:rotate(0deg);} to{transform:rotate(360deg);}}
 </style>
 </head>
@@ -822,21 +860,24 @@ li.task.done .t-text{color:var(--sub); text-decoration:line-through; font-weight
       src="https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?q=75&amp;w=900&amp;auto=format&amp;fit=crop"
       onerror="this.remove()">
   </div>
-  <svg class="splash-icon" viewBox="0 0 100 100">
-    <defs>
-      <linearGradient id="splashGradA" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0" stop-color="#FFC93C"/>
-        <stop offset="1" stop-color="#FF9A1F"/>
-      </linearGradient>
-      <linearGradient id="splashGradB" x1="0" y1="1" x2="1" y2="0">
-        <stop offset="0" stop-color="#FF7A1A"/>
-        <stop offset="1" stop-color="#FF4D1C"/>
-      </linearGradient>
-    </defs>
-    <polygon points="18,40 34,40 46,66 30,66" fill="url(#splashGradA)"/>
-    <polygon points="32,66 46,66 84,20 70,20" fill="url(#splashGradB)"/>
-  </svg>
+  <div class="splash-badge">
+    <svg class="splash-icon" viewBox="0 0 100 100">
+      <defs>
+        <linearGradient id="splashGradA" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#FFC93C"/>
+          <stop offset="1" stop-color="#FF9A1F"/>
+        </linearGradient>
+        <linearGradient id="splashGradB" x1="0" y1="1" x2="1" y2="0">
+          <stop offset="0" stop-color="#FF7A1A"/>
+          <stop offset="1" stop-color="#FF4D1C"/>
+        </linearGradient>
+      </defs>
+      <polygon points="18,40 34,40 46,66 30,66" fill="url(#splashGradA)"/>
+      <polygon points="32,66 46,66 84,20 70,20" fill="url(#splashGradB)"/>
+    </svg>
+  </div>
   <div class="splash-word">Vink</div>
+  <div class="splash-dots"><span></span><span></span><span></span></div>
 </div>
 
 <!-- HOME -->
@@ -986,28 +1027,6 @@ li.task.done .t-text{color:var(--sub); text-decoration:line-through; font-weight
   </div>
   <div class="scroll">
 
-    <div class="field-label">Cloud sync (Firebase)</div>
-    <div class="field-card">
-      <div class="field-row" style="justify-content:space-between; gap:10px;">
-        <span style="display:flex; align-items:center; gap:9px; min-width:0;">
-          <span id="fbStatusDot" style="width:9px; height:9px; border-radius:50%; background:var(--success); flex-shrink:0;"></span>
-          <span id="firebaseStatus" style="font-size:14px; font-weight:600; min-width:0;">Verbinden...</span>
-        </span>
-        <button type="button" class="mini-btn" id="toggleFbAdvanced">Geavanceerd</button>
-      </div>
-    </div>
-    <div id="fbAdvancedPanel" style="display:none;">
-      <div class="field-card" style="margin-top:10px;">
-        <div class="field-row" style="align-items:flex-start; padding-top:14px; padding-bottom:14px;">
-          <textarea id="firebaseConfigInput" placeholder='Plak hier je Firebase config, bv. {"apiKey":"...","authDomain":"...","projectId":"..."}' style="min-height:64px; border:none; background:transparent; font-size:12px; width:100%; resize:vertical; outline:none; font-family:monospace; color:var(--text);"></textarea>
-        </div>
-      </div>
-      <button class="settings-btn" id="saveFirebaseConfig">
-        <span class="sb-left"><span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="17" height="17"><path d="M10 13a5 5 0 0 0 7.5.5l2-2a5 5 0 0 0-7-7l-1.5 1.5"/><path d="M14 11a5 5 0 0 0-7.5-.5l-2 2a5 5 0 0 0 7 7l1.5-1.5"/></svg></span>Cloud sync opslaan &amp; verbinden</span>
-        <span class="chev">›</span>
-      </button>
-    </div>
-
     <!-- Logged out -->
     <div id="authSection" style="display:none;">
       <div class="auth-hero">
@@ -1053,6 +1072,28 @@ li.task.done .t-text{color:var(--sub); text-decoration:line-through; font-weight
         </div>
         <div class="auth-hero-word">Vink</div>
       </div>
+
+      <div class="field-card">
+        <div class="field-row" style="justify-content:space-between; gap:10px;">
+          <span style="display:flex; align-items:center; gap:9px; min-width:0;">
+            <span id="fbStatusDot" style="width:9px; height:9px; border-radius:50%; background:var(--success); flex-shrink:0;"></span>
+            <span id="firebaseStatus" style="font-size:14px; font-weight:600; min-width:0;">Verbinden...</span>
+          </span>
+          <button type="button" class="mini-btn" id="toggleFbAdvanced">Geavanceerd</button>
+        </div>
+      </div>
+      <div id="fbAdvancedPanel" style="display:none;">
+        <div class="field-card" style="margin-top:10px;">
+          <div class="field-row" style="align-items:flex-start; padding-top:14px; padding-bottom:14px;">
+            <textarea id="firebaseConfigInput" placeholder='Plak hier je Firebase config, bv. {"apiKey":"...","authDomain":"...","projectId":"..."}' style="min-height:64px; border:none; background:transparent; font-size:12px; width:100%; resize:vertical; outline:none; font-family:monospace; color:var(--text);"></textarea>
+          </div>
+        </div>
+        <button class="settings-btn" id="saveFirebaseConfig">
+          <span class="sb-left"><span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="17" height="17"><path d="M10 13a5 5 0 0 0 7.5.5l2-2a5 5 0 0 0-7-7l-1.5 1.5"/><path d="M14 11a5 5 0 0 0-7.5-.5l-2 2a5 5 0 0 0 7 7l1.5-1.5"/></svg></span>Cloud sync opslaan &amp; verbinden</span>
+          <span class="chev">›</span>
+        </button>
+      </div>
+
       <div class="field-label" id="authModeLabel">Inloggen</div>
       <div class="field-card">
         <div class="field-row"><input type="text" id="authEmail" placeholder="E-mailadres" autocomplete="email" autocapitalize="off"></div>
@@ -1121,6 +1162,40 @@ li.task.done .t-text{color:var(--sub); text-decoration:line-through; font-weight
           <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
         </div>
       </div>
+
+      <div class="field-label">Jouw weekroute</div>
+      <div class="route-card">
+        <svg class="route-svg" id="routeSvg" viewBox="0 0 320 460" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="routeGrad" x1="0" y1="1" x2="0" y2="0">
+              <stop offset="0" stop-color="#FF3D9E"/>
+              <stop offset="1" stop-color="#FF7FC0"/>
+            </linearGradient>
+          </defs>
+          <path class="route-shadow" d="M160,420 C160,390 90,390 90,360 C90,335 210,335 210,310 C210,280 100,280 100,250 C100,222.5 220,222.5 220,195 C220,165 110,165 110,135 C110,102.5 190,102.5 190,70"/>
+          <path class="route-road" d="M160,420 C160,390 90,390 90,360 C90,335 210,335 210,310 C210,280 100,280 100,250 C100,222.5 220,222.5 220,195 C220,165 110,165 110,135 C110,102.5 190,102.5 190,70"/>
+          <path class="route-stripe" d="M160,420 C160,390 90,390 90,360 C90,335 210,335 210,310 C210,280 100,280 100,250 C100,222.5 220,222.5 220,195 C220,165 110,165 110,135 C110,102.5 190,102.5 190,70"/>
+
+          <g class="route-signpost" transform="translate(190,42)">
+            <rect x="-3" y="0" width="6" height="30" rx="3" fill="#F4C94F"/>
+            <path d="M3,4 L30,11 L3,18 Z" fill="#7B5CFF"/>
+            <path d="M3,16 L24,21 L3,26 Z" fill="#FF7A00"/>
+          </g>
+
+          <g class="route-marker" id="routeTodayMarker" style="display:none;">
+            <path d="M0,-16 L12,11 L-12,11 Z" fill="#FF3D9E" stroke="#fff" stroke-width="2" stroke-linejoin="round"/>
+          </g>
+
+          <g class="route-node" data-day="0" transform="translate(160,420)"><circle r="19"/><text dy="5">M</text></g>
+          <g class="route-node" data-day="1" transform="translate(90,360)"><circle r="19"/><text dy="5">D</text></g>
+          <g class="route-node" data-day="2" transform="translate(210,310)"><circle r="19"/><text dy="5">W</text></g>
+          <g class="route-node" data-day="3" transform="translate(100,250)"><circle r="19"/><text dy="5">D</text></g>
+          <g class="route-node" data-day="4" transform="translate(220,195)"><circle r="19"/><text dy="5">V</text></g>
+          <g class="route-node" data-day="5" transform="translate(110,135)"><circle r="19"/><text dy="5">Z</text></g>
+          <g class="route-node" data-day="6" transform="translate(190,70)"><circle r="19"/><text dy="5">Z</text></g>
+        </svg>
+      </div>
+
       <button class="settings-btn" id="logoutBtn">
         <span class="sb-left"><span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="17" height="17"><path d="M9 21H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3"/><polyline points="15 17 20 12 15 7"/><line x1="20" y1="12" x2="9" y2="12"/></svg></span>Uitloggen</span>
         <span class="chev">›</span>
@@ -1137,49 +1212,55 @@ li.task.done .t-text{color:var(--sub); text-decoration:line-through; font-weight
       <div id="friendsList"></div>
     </div>
 
-    <div class="field-label">Gemini API-key <span id="apiKeyStatusBadge" style="text-transform:none; font-weight:700; color:var(--success);"></span></div>
-    <div class="field-card">
-      <div class="field-row">
-        <input type="password" id="apiKeyInput" placeholder="Standaard key actief — vul hier je eigen key in om te overschrijven">
-        <button class="mini-btn" id="toggleKey">Toon</button>
-      </div>
-    </div>
-    <div class="note" id="apiKeyNote">Je key wordt alleen lokaal op dit toestel opgeslagen en rechtstreeks naar Google Gemini gestuurd — nooit gedeeld met iemand anders. Een key maak je gratis op aistudio.google.com/apikey.</div>
-
-    <div class="field-label">Model</div>
-    <div class="field-card">
-      <div class="field-row">
-        <select id="modelSelect">
-          <option value="gemini-flash-latest">gemini-flash-latest (snel &amp; goedkoop)</option>
-          <option value="gemini-3.5-flash">gemini-3.5-flash</option>
-          <option value="gemini-3.1-pro">gemini-3.1-pro (krachtiger)</option>
-          <option value="gemini-3-pro">gemini-3-pro</option>
-        </select>
-      </div>
-    </div>
-
-    <div class="field-label">Voorkeuren</div>
-    <div class="field-card">
-      <div class="toggle-row">
-        <span>Automatische suggesties bij nieuwe taak</span>
-        <label class="switch"><input type="checkbox" id="autoSuggest" checked><span class="slider"></span></label>
-      </div>
-      <div class="toggle-row">
-        <span>Pop-up meldingen (taken &amp; chat)</span>
-        <label class="switch"><input type="checkbox" id="notifToggle"><span class="slider"></span></label>
-      </div>
-    </div>
-
-    <button class="settings-btn" id="saveSettings">
-      <span class="sb-left"><span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="17" height="17"><circle cx="12" cy="12" r="9"/><polyline points="8 12.5 11 15.5 16 9.5"/></svg></span>Instellingen opslaan</span>
-      <span class="chev">›</span>
+    <button type="button" class="settings-btn" id="toggleAdvancedSettings">
+      <span class="sb-left"><span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="17" height="17"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>Instellingen &amp; AI</span>
+      <span class="chev" id="advSettingsChev">›</span>
     </button>
-    <button class="settings-btn danger" id="clearAll">
-      <span class="sb-left"><span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="17" height="17"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></span>Wis alle taken &amp; gegevens</span>
-      <span class="chev">›</span>
-    </button>
+    <div id="advancedSettingsPanel" style="display:none;">
+      <div class="field-label">Gemini API-key <span id="apiKeyStatusBadge" style="text-transform:none; font-weight:700; color:var(--success);"></span></div>
+      <div class="field-card">
+        <div class="field-row">
+          <input type="password" id="apiKeyInput" placeholder="Standaard key actief — vul hier je eigen key in om te overschrijven">
+          <button class="mini-btn" id="toggleKey">Toon</button>
+        </div>
+      </div>
+      <div class="note" id="apiKeyNote">Je key wordt alleen lokaal op dit toestel opgeslagen en rechtstreeks naar Google Gemini gestuurd — nooit gedeeld met iemand anders. Een key maak je gratis op aistudio.google.com/apikey.</div>
 
-    <div class="note">Vink. — werkt volledig lokaal op je telefoon. Log in om je taken ook in de cloud te bewaren en te delen met vrienden.</div>
+      <div class="field-label">Model</div>
+      <div class="field-card">
+        <div class="field-row">
+          <select id="modelSelect">
+            <option value="gemini-flash-latest">gemini-flash-latest (snel &amp; goedkoop)</option>
+            <option value="gemini-3.5-flash">gemini-3.5-flash</option>
+            <option value="gemini-3.1-pro">gemini-3.1-pro (krachtiger)</option>
+            <option value="gemini-3-pro">gemini-3-pro</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field-label">Voorkeuren</div>
+      <div class="field-card">
+        <div class="toggle-row">
+          <span>Automatische suggesties bij nieuwe taak</span>
+          <label class="switch"><input type="checkbox" id="autoSuggest" checked><span class="slider"></span></label>
+        </div>
+        <div class="toggle-row">
+          <span>Pop-up meldingen (taken &amp; chat)</span>
+          <label class="switch"><input type="checkbox" id="notifToggle"><span class="slider"></span></label>
+        </div>
+      </div>
+
+      <button class="settings-btn" id="saveSettings">
+        <span class="sb-left"><span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="17" height="17"><circle cx="12" cy="12" r="9"/><polyline points="8 12.5 11 15.5 16 9.5"/></svg></span>Instellingen opslaan</span>
+        <span class="chev">›</span>
+      </button>
+      <button class="settings-btn danger" id="clearAll">
+        <span class="sb-left"><span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="17" height="17"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></span>Wis alle taken &amp; gegevens</span>
+        <span class="chev">›</span>
+      </button>
+
+      <div class="note">Vink. — werkt volledig lokaal op je telefoon. Log in om je taken ook in de cloud te bewaren en te delen met vrienden.</div>
+    </div>
   </div>
 </section>
 
@@ -1551,6 +1632,46 @@ li.task.done .t-text{color:var(--sub); text-decoration:line-through; font-weight
     var fillEl = document.getElementById('progressFill');
     if(pctEl) pctEl.textContent = pct + '%';
     if(fillEl) fillEl.style.width = pct + '%';
+    renderRoute();
+  }
+
+  var ROUTE_COORDS = [[160,420],[90,360],[210,310],[100,250],[220,195],[110,135],[190,70]];
+  function renderRoute(){
+    var svg = document.getElementById('routeSvg');
+    if(!svg) return;
+    var monday = mondayOf(todayStr());
+    var today = todayStr();
+    var doneDays = {};
+    tasks.forEach(function(t){
+      if(t.done && t.completedAt) doneDays[todayStr(new Date(t.completedAt))] = true;
+    });
+    var todayIndex = -1;
+    for(var i = 0; i < 7; i++){
+      var d = new Date(monday); d.setDate(monday.getDate() + i);
+      var dStr = todayStr(d);
+      var node = svg.querySelector('.route-node[data-day="' + i + '"]');
+      if(!node) continue;
+      node.classList.remove('done', 'today', 'future');
+      if(dStr === today){
+        node.classList.add('today');
+        todayIndex = i;
+        if(doneDays[dStr]) node.classList.add('done');
+      } else if(dStr > today){
+        node.classList.add('future');
+      } else if(doneDays[dStr]){
+        node.classList.add('done');
+      }
+    }
+    var marker = document.getElementById('routeTodayMarker');
+    if(marker){
+      if(todayIndex >= 0){
+        var c = ROUTE_COORDS[todayIndex];
+        marker.setAttribute('transform', 'translate(' + c[0] + ',' + (c[1] - 32) + ')');
+        marker.style.display = 'block';
+      } else {
+        marker.style.display = 'none';
+      }
+    }
   }
 
   /* ---------- Calendar (day strip + timeline) ---------- */
@@ -1747,7 +1868,7 @@ li.task.done .t-text{color:var(--sub); text-decoration:line-through; font-weight
   // LET OP: dit is een statische site zonder backend (GitHub Pages), dus alles hier in de
   // broncode is zichtbaar/uitleesbaar voor wie de pagina bezoekt ("view source"). Zet hier
   // dus alleen een key neer waarvan je het acceptabel vindt dat die openbaar zichtbaar is.
-  var DEFAULT_GEMINI_API_KEY = "";
+  var DEFAULT_GEMINI_API_KEY = "AQ.Ab8RN6KomUo4kDY5QjZHAXv5LlDDL_Brx9Zf200XO1JUsr2olQ";
   function getApiKey(){
     var own = (localStorage.getItem(LS_KEY) || '').trim();
     return own || DEFAULT_GEMINI_API_KEY;
@@ -2155,6 +2276,14 @@ li.task.done .t-text{color:var(--sub); text-decoration:line-through; font-weight
     var showing = panel.style.display !== 'none';
     panel.style.display = showing ? 'none' : 'block';
     this.textContent = showing ? 'Geavanceerd' : 'Verbergen';
+  });
+
+  document.getElementById('toggleAdvancedSettings').addEventListener('click', function(){
+    var panel = document.getElementById('advancedSettingsPanel');
+    var chev = document.getElementById('advSettingsChev');
+    var showing = panel.style.display !== 'none';
+    panel.style.display = showing ? 'none' : 'block';
+    if(chev) chev.style.transform = showing ? 'rotate(0deg)' : 'rotate(90deg)';
   });
 
   function initFirebase(){
