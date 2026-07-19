@@ -788,6 +788,7 @@ li.task.done .t-text{color:var(--sub); text-decoration:line-through; font-weight
 .quick-add{display:flex; gap:8px; margin:0 20px 12px;}.quick-add input{min-width:0;flex:1;border:0;border-radius:14px;background:var(--card);box-shadow:var(--shadow-card);padding:13px 14px;font:inherit;color:var(--text);outline:none;}.quick-add button{width:45px;border:0;border-radius:14px;color:#fff;background:var(--tint-grad);font-size:24px;line-height:1;}
 .today-progress{margin:0 20px 12px;font-size:13px;color:var(--sub);font-weight:600;}.today-progress b{color:var(--text);}
 .onboarding{position:fixed;inset:0;z-index:999998;background:rgba(9,17,47,.35);display:flex;align-items:flex-end;padding:16px;backdrop-filter:blur(8px);}.onboarding.hide{display:none;}.onboarding-card{width:100%;background:#fff;border-radius:26px;padding:26px 22px calc(22px + env(safe-area-inset-bottom));box-shadow:var(--shadow-float);}.onboarding-card h2{margin:0;font-size:27px;letter-spacing:-.7px;}.onboarding-card p{margin:8px 0 20px;color:var(--sub);line-height:1.45;}.onboarding-options{display:grid;gap:10px;}.onboarding-choice{border:1px solid var(--sep);border-radius:15px;background:var(--card);padding:14px;text-align:left;font:inherit;color:var(--text);}.onboarding-choice strong{display:block;font-size:15px;}.onboarding-choice span{display:block;color:var(--sub);font-size:13px;margin-top:3px;}
+.timer-overlay{position:fixed;inset:0;z-index:999997;display:none;align-items:center;justify-content:center;padding:24px;background:rgba(9,17,47,.42);backdrop-filter:blur(10px);}.timer-overlay.show{display:flex;}.timer-card{width:min(340px,100%);padding:28px 22px 22px;border-radius:28px;background:#fff;text-align:center;box-shadow:var(--shadow-float);}.timer-label{font-size:12px;font-weight:800;color:var(--tint-deep);text-transform:uppercase;letter-spacing:.7px;}.timer-clock{font-size:58px;font-weight:800;letter-spacing:-2px;margin:13px 0 3px;font-variant-numeric:tabular-nums;}.timer-task{color:var(--sub);font-size:14px;min-height:20px;}.timer-actions{display:flex;gap:9px;margin-top:22px;}.timer-actions button{flex:1;border:0;border-radius:14px;padding:13px;font:inherit;font-weight:750;}.timer-primary{background:var(--tint-grad);color:#fff;}.timer-secondary{background:var(--card-2);color:var(--text);}
 
 /* ---------- Preloader ---------- */
 #preloader{
@@ -1062,7 +1063,7 @@ li.task{padding:15px 14px 15px 16px;}.t-text{font-size:15.5px;}.t-meta{font-size
     <div class="focus-meta" id="focusMeta">Een taak tegelijk geeft rust.</div>
     <div class="focus-actions"><button class="focus-start" id="focusStart">Start focus</button><button class="focus-skip" id="focusSkip">Volgende taak</button></div>
   </div>
-  <div class="quick-add"><input id="quickAddInput" type="text" placeholder="Snel toevoegen: morgen 15:00 tandarts bellen"><button id="quickAddBtn" aria-label="taak toevoegen">+</button></div>
+  <div class="quick-add"><input id="quickAddInput" type="text" placeholder="Snel toevoegen: morgen 15:00 tandarts bellen"><button id="voiceAddBtn" aria-label="spraak invoer">◉</button><button id="quickAddBtn" aria-label="taak toevoegen">+</button></div>
   <div class="today-progress" id="todayProgress">Vandaag: <b>0 van 0 klaar</b></div>
 
   <div class="home-hero">
@@ -1430,6 +1431,7 @@ li.task{padding:15px 14px 15px 16px;}.t-text{font-size:15.5px;}.t-meta{font-size
         <span class="chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
       </button>
 
+      <button class="settings-btn pressable" id="exportData"><span class="sb-left"><span class="sb-icon" style="background:var(--blue);">⇩</span>Back-up downloaden</span><span class="chev">›</span></button>
       <div class="note">Planivo werkt volledig lokaal op je telefoon. Log in om je taken in de cloud te bewaren, te chatten en samen te plannen met vrienden.</div>
     </div>
   </div>
@@ -1576,6 +1578,8 @@ li.task{padding:15px 14px 15px 16px;}.t-text{font-size:15.5px;}.t-meta{font-size
 </div>
 
 <div id="toast"></div>
+
+<div class="timer-overlay" id="timerOverlay" role="dialog" aria-modal="true"><div class="timer-card"><div class="timer-label">Focussessie</div><div class="timer-clock" id="timerClock">25:00</div><div class="timer-task" id="timerTask"></div><div class="timer-actions"><button class="timer-secondary" id="timerStop">Stop</button><button class="timer-primary" id="timerComplete">Klaar</button></div></div></div>
 
 <script src="https://www.gstatic.com/firebasejs/12.15.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/12.15.0/firebase-auth-compat.js"></script>
@@ -1765,7 +1769,16 @@ li.task{padding:15px 14px 15px 16px;}.t-text{font-size:15.5px;}.t-meta{font-size
   });
   document.getElementById('quickAddInput').addEventListener('keydown', function(e){ if(e.key === 'Enter') document.getElementById('quickAddBtn').click(); });
   document.getElementById('focusSkip').addEventListener('click', function(){ focusIndex++; renderFocus(); });
-  document.getElementById('focusStart').addEventListener('click', function(){ var id = this.dataset.id; if(!id){ openSheet(); return; } var t = tasks.find(function(x){return x.id===id;}); if(t){ openSheet(t); showToast('Focus op één stap tegelijk ✦'); } });
+  var focusTimerId = null, focusEnd = 0, focusTaskId = null;
+  function stopFocusTimer(){ clearInterval(focusTimerId); focusTimerId=null; document.getElementById('timerOverlay').classList.remove('show'); }
+  function startFocusTimer(task){
+    focusTaskId=task.id; focusEnd=Date.now()+((task.duration||25)*60000); document.getElementById('timerTask').textContent=task.text; document.getElementById('timerOverlay').classList.add('show');
+    clearInterval(focusTimerId); focusTimerId=setInterval(function(){ var left=Math.max(0,focusEnd-Date.now()), mins=Math.floor(left/60000), secs=Math.floor(left/1000)%60; document.getElementById('timerClock').textContent=('0'+mins).slice(-2)+':'+('0'+secs).slice(-2); if(!left){ stopFocusTimer(); notify('Focussessie klaar','Goed gedaan — tijd voor een korte pauze.'); showToast('Focussessie klaar ✦'); } },250);
+  }
+  document.getElementById('focusStart').addEventListener('click', function(){ var id=this.dataset.id; if(!id){openSheet();return;} var t=tasks.find(function(x){return x.id===id;}); if(t) startFocusTimer(t); });
+  document.getElementById('timerStop').addEventListener('click', stopFocusTimer);
+  document.getElementById('timerComplete').addEventListener('click', function(){ var t=tasks.find(function(x){return x.id===focusTaskId;}); stopFocusTimer(); if(t&&!t.done) toggleTask(t.id); showToast('Focus afgerond — mooi werk!'); });
+  document.getElementById('voiceAddBtn').addEventListener('click', function(){ var Speech=window.SpeechRecognition||window.webkitSpeechRecognition; if(!Speech){showToast('Spraakinvoer wordt niet ondersteund in deze browser');return;} var rec=new Speech(); rec.lang='nl-NL'; rec.onresult=function(e){document.getElementById('quickAddInput').value=e.results[0][0].transcript;document.getElementById('quickAddBtn').click();}; rec.onerror=function(){showToast('Spraak niet verstaan, probeer opnieuw');}; rec.start(); });
   document.querySelectorAll('[data-onboarding]').forEach(function(btn){ btn.addEventListener('click', function(){
     var choice = btn.dataset.onboarding;
     if(choice !== 'empty' && !tasks.length){ addTask('Kies je belangrijkste taak', {priority:'hoog'}); addTask('Plan een rustmoment', {priority:'normaal'}); addTask('Rond één kleine taak af', {priority:'laag'}); }
@@ -3189,6 +3202,11 @@ li.task{padding:15px 14px 15px 16px;}.t-text{font-size:15.5px;}.t-meta{font-size
       saveTasks(); saveChat(); renderList(); renderChat(); renderStats(); renderCalendar();
       showToast('Alles gewist');
     }
+  });
+  document.getElementById('exportData').addEventListener('click', function(){
+    var backup={app:'Planivo',exportedAt:new Date().toISOString(),tasks:tasks,chatHistory:chatHistory};
+    var blob=new Blob([JSON.stringify(backup,null,2)],{type:'application/json'}), link=document.createElement('a');
+    link.href=URL.createObjectURL(blob); link.download='planivo-back-up-'+todayStr()+'.json'; link.click(); URL.revokeObjectURL(link.href); showToast('Back-up gedownload');
   });
 
   /* ================================================================
