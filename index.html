@@ -2002,7 +2002,7 @@ li.task.done .t-text{color:var(--sub); text-decoration:line-through; font-weight
 
   /* ---------- AI providers ---------- */
   // LET OP: statische site — keys hier zijn openbaar zichtbaar in de broncode.
-  var DEFAULT_GEMINI_API_KEY = "AQ.Ab8RN6KomUo4kDY5QjZHAXv5LlDDL_Brx9Zf200XO1JUsr2olQ";
+  var DEFAULT_GEMINI_API_KEY = "AQ.Ab8RN6KgBNV9XD81bH25dVoHoX96RVcRFkGxSCdXkRR6TlD2mA";
   var DEFAULT_GROQ_API_KEY = "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";
 
   var GROQ_MODELS = ['llama-3.3-70b-versatile', 'llama-3.1-8b-instant', 'gemma2-9b-it'];
@@ -2011,7 +2011,7 @@ li.task.done .t-text{color:var(--sub); text-decoration:line-through; font-weight
 
   function getProvider(){
     var p = localStorage.getItem(LS_PROVIDER);
-    return (p === 'gemini' || p === 'groq') ? p : 'groq';
+    return (p === 'gemini' || p === 'groq') ? p : 'gemini';
   }
   function defaultKeyFor(provider){
     return provider === 'gemini' ? DEFAULT_GEMINI_API_KEY : DEFAULT_GROQ_API_KEY;
