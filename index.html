@@ -968,6 +968,38 @@ li.task{padding:15px 14px 15px 16px;}.t-text{font-size:15.5px;}.t-meta{font-size
   .lt-head{padding-top:30px;}
   .navbar{padding-left:20px;padding-right:20px;}
 }
+
+/* Grote iPhones (zoals iPhone Pro Max): benut de extra hoogte bewust. */
+@media (min-width:390px) and (max-width:699px) and (min-height:820px){
+  .lt-head{padding-top:30px;padding-bottom:18px;}
+  .scroll{padding-bottom:calc(142px + env(safe-area-inset-bottom));}
+
+  /* Vandaag */
+  #view-home .focus-card{margin-bottom:16px;}
+  #view-home .quick-add{margin-bottom:16px;}
+  #view-home .today-progress{margin-bottom:14px;}
+  #view-home .home-hero{margin-bottom:16px;}
+  #view-home .seg{margin-bottom:16px;}
+  #view-home .task-group{margin-bottom:18px;}
+
+  /* Agenda */
+  #view-agenda .day-strip{margin-bottom:16px;}
+  #view-agenda .agenda-who{margin-bottom:10px;}
+  #view-agenda .timeline-wrap{margin-top:18px;}
+  #view-agenda .untimed-card{margin-top:18px;}
+  #view-agenda .stat-grid{margin-top:18px;}
+  #view-agenda .ai-card{margin-top:18px;}
+  #view-agenda .ai-actions{margin-top:14px;}
+
+  /* Chats en profiel */
+  #view-chats .chatlist{margin-top:8px;}
+  #view-profile .profile-card{margin-bottom:26px;}
+  #view-profile .route-card{margin-bottom:24px;}
+  #view-profile .field-label{margin-top:27px;}
+  #view-profile .field-card + .field-card{margin-top:12px;}
+
+  .navbar{padding-bottom:calc(15px + env(safe-area-inset-bottom));}
+}
 </style>
 </head>
 <body>
