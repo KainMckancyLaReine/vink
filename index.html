@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="Vink.">
 <meta name="theme-color" content="#F2F2F7">
 <meta name="mobile-web-app-capable" content="yes">
-<link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22Vink%22%2C%22short_name%22%3A%22Vink%22%2C%22start_url%22%3A%22.%22%2C%22scope%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23F2F2F7%22%2C%22theme_color%22%3A%22%23F2F2F7%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22icons%2Ficon-192.png%22%2C%22sizes%22%3A%22192x192%22%2C%22type%22%3A%22image%2Fpng%22%7D%2C%7B%22src%22%3A%22icons%2Ficon-512.png%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fpng%22%7D%5D%7D">
+<link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22Vink%22%2C%22short_name%22%3A%22Vink%22%2C%22start_url%22%3A%22.%22%2C%22scope%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22orientation%22%3A%22portrait%22%2C%22background_color%22%3A%22%23F2F2F7%22%2C%22theme_color%22%3A%22%23F2F2F7%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22icons%2Ficon-192.png%22%2C%22sizes%22%3A%22192x192%22%2C%22type%22%3A%22image%2Fpng%22%7D%2C%7B%22src%22%3A%22icons%2Ficon-512.png%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fpng%22%7D%5D%7D">
 <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon-180.png">
 <link rel="apple-touch-icon" sizes="167x167" href="icons/apple-touch-icon-167.png">
 <link rel="apple-touch-icon" sizes="152x152" href="icons/apple-touch-icon-152.png">
@@ -134,6 +134,32 @@ input,textarea,select{font-family:inherit;}
   position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
   font-size:11.5px; font-weight:800; color:var(--tint-deep);
   font-variant-numeric:tabular-nums;
+}
+
+/* ---------- Home hero (sfeerfoto) ---------- */
+.home-hero{
+  position:relative; margin:8px 4px 2px; height:150px;
+  border-radius:var(--r-xl); overflow:hidden;
+  box-shadow:var(--shadow-card);
+}
+.home-hero img{
+  position:absolute; inset:0; width:100%; height:100%;
+  object-fit:cover; object-position:center 62%;
+  animation:heroZoom 18s ease-in-out infinite alternate;
+}
+@keyframes heroZoom{from{transform:scale(1.02);} to{transform:scale(1.12);}}
+.home-hero-scrim{
+  position:absolute; inset:0;
+  background:linear-gradient(to top, rgba(20,14,8,.68) 0%, rgba(20,14,8,.12) 55%, rgba(20,14,8,.05) 100%);
+}
+.home-hero-text{position:absolute; left:18px; right:18px; bottom:15px; color:#fff;}
+.home-hero-eyebrow{
+  font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.7px;
+  opacity:.92; text-shadow:0 1px 6px rgba(0,0,0,.4);
+}
+.home-hero-quote{
+  font-size:17px; font-weight:750; letter-spacing:-0.3px; margin-top:4px; line-height:1.3;
+  text-shadow:0 2px 10px rgba(0,0,0,.45);
 }
 
 /* ---------- iOS segmented control ---------- */
@@ -540,11 +566,20 @@ li.task.done .t-text{color:var(--sub); text-decoration:line-through; font-weight
 
 /* ---------- Profiel ---------- */
 .profile-card{
+  position:relative; overflow:hidden;
   background:var(--card); border-radius:var(--r-xl);
   padding:26px 20px 22px; text-align:center;
   box-shadow:var(--shadow-card); margin:14px 4px 0;
 }
-.avatar-wrap{position:relative; width:88px; margin:0 auto 14px;}
+.profile-cover{
+  position:absolute; top:0; left:0; right:0; height:96px; overflow:hidden;
+}
+.profile-cover img{width:100%; height:100%; object-fit:cover; object-position:center 55%;}
+.profile-cover::after{
+  content:""; position:absolute; inset:0;
+  background:linear-gradient(to bottom, rgba(0,0,0,.10) 0%, var(--card) 96%);
+}
+.avatar-wrap{position:relative; width:88px; margin:0 auto 14px; z-index:1;}
 .profile-avatar-lg{
   width:88px; height:88px; border-radius:50%;
   background:var(--tint-grad); color:white;
@@ -795,6 +830,27 @@ li.task.done .t-text{color:var(--sub); text-decoration:line-through; font-weight
 #toast.show{opacity:1; transform:translateX(-50%) translateY(0) scale(1); pointer-events:auto;}
 #toast .undo-btn{background:none; border:none; color:var(--tint); font-weight:800; font-size:13.5px; padding:0; margin-left:2px;}
 
+/* ---------- Draai-terug scherm (alleen echte telefoon in landschap) ---------- */
+#rotate-lock{
+  position:fixed; inset:0; z-index:500;
+  background:var(--bg); color:var(--text);
+  display:none; flex-direction:column; align-items:center; justify-content:center;
+  text-align:center; padding:24px;
+}
+#rotate-lock .rl-tile{
+  width:84px; height:84px; border-radius:22px; background:var(--tint-grad);
+  display:flex; align-items:center; justify-content:center; margin-bottom:20px;
+  box-shadow:0 18px 40px -12px rgba(255,110,30,.55);
+  animation:rlSpin 2.4s ease-in-out infinite;
+}
+#rotate-lock .rl-tile svg{width:44px; height:44px;}
+#rotate-lock b{font-size:19px; font-weight:800; letter-spacing:-0.4px;}
+#rotate-lock p{font-size:14.5px; color:var(--sub); margin-top:6px; max-width:260px; line-height:1.5;}
+@keyframes rlSpin{0%,100%{transform:rotate(0);} 50%{transform:rotate(-90deg);}}
+@media (orientation:landscape) and (max-height:540px){
+  #rotate-lock{display:flex;}
+}
+
 /* ---------- Tab bar (Apple glass) ---------- */
 .navbar{
   position:absolute; left:0; right:0; bottom:0; z-index:40;
@@ -870,6 +926,17 @@ li.task.done .t-text{color:var(--sub); text-decoration:line-through; font-weight
         </svg>
         <div class="ring-pct" id="ringPct">0%</div>
       </div>
+    </div>
+  </div>
+
+  <div class="home-hero">
+    <img alt="" loading="eager" id="homeHeroImg"
+      src="https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?q=70&amp;w=900&amp;auto=format&amp;fit=crop"
+      onerror="this.style.display='none'">
+    <div class="home-hero-scrim"></div>
+    <div class="home-hero-text">
+      <div class="home-hero-eyebrow">Even een moment voor jezelf</div>
+      <div class="home-hero-quote" id="homeHeroQuote">Rustig aan. Eén taak tegelijk.</div>
     </div>
   </div>
 
@@ -1099,6 +1166,11 @@ li.task.done .t-text{color:var(--sub); text-decoration:line-through; font-weight
     <!-- Ingelogd -->
     <div id="profileSection" style="display:none;">
       <div class="profile-card">
+        <div class="profile-cover">
+          <img alt="" loading="lazy"
+            src="https://images.unsplash.com/photo-1441974231531-c6227db76b6e?q=70&amp;w=900&amp;auto=format&amp;fit=crop"
+            onerror="this.parentNode.style.display='none'">
+        </div>
         <div class="avatar-wrap">
           <div id="avatarCircle" class="profile-avatar-lg">?</div>
           <button class="avatar-edit-btn pressable" id="avatarEditBtn" aria-label="profielfoto wijzigen" type="button">
@@ -1355,6 +1427,15 @@ li.task.done .t-text{color:var(--sub); text-decoration:line-through; font-weight
   </div>
 </div>
 
+<!-- Draai-terug scherm -->
+<div id="rotate-lock">
+  <div class="rl-tile">
+    <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="3" width="10" height="18" rx="2.5"/><path d="M12 17.5h.01"/><path d="M3.5 12a8.5 8.5 0 0 1 3-6.5"/><polyline points="4 3 3 6 6.5 6"/></svg>
+  </div>
+  <b>Draai je toestel</b>
+  <p>Vink werkt het best rechtop. Draai je telefoon terug naar staand.</p>
+</div>
+
 <div id="toast"></div>
 
 <script src="https://www.gstatic.com/firebasejs/12.15.0/firebase-app-compat.js"></script>
@@ -1489,6 +1570,23 @@ li.task.done .t-text{color:var(--sub); text-decoration:line-through; font-weight
     var d = new Date();
     var str = d.toLocaleDateString('nl-NL', { weekday:'long', day:'numeric', month:'long' });
     document.getElementById('dateLine').textContent = str.charAt(0).toUpperCase() + str.slice(1);
+  }
+
+  var CALM_QUOTES = [
+    'Rustig aan. Eén taak tegelijk.',
+    'Kleine stapjes tellen ook.',
+    'Adem in, adem uit — en begin.',
+    'Vandaag hoeft niet perfect te zijn.',
+    'Doe wat je kan, laat de rest los.',
+    'Een lege lijst is geen doel op zich.',
+    'Focus op wat écht telt vandaag.',
+    'Je hoeft het niet allemaal tegelijk te doen.'
+  ];
+  function setHomeHeroQuote(){
+    var el = document.getElementById('homeHeroQuote');
+    if(!el) return;
+    var dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(),0,0)) / 86400000);
+    el.textContent = CALM_QUOTES[dayOfYear % CALM_QUOTES.length];
   }
 
   /* ---------- Segmented control ---------- */
@@ -2002,7 +2100,7 @@ li.task.done .t-text{color:var(--sub); text-decoration:line-through; font-weight
 
   /* ---------- AI providers ---------- */
   // LET OP: statische site — keys hier zijn openbaar zichtbaar in de broncode.
-  var DEFAULT_GEMINI_API_KEY = "AQ.Ab8RN6KgBNV9XD81bH25dVoHoX96RVcRFkGxSCdXkRR6TlD2mA";
+  var DEFAULT_GEMINI_API_KEY = "AQ.Ab8RN6JoQPRXfs9X-llGGjSJIKzDExNyTZKWiOtYGzFON2prgQ";
   var DEFAULT_GROQ_API_KEY = "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";
 
   var GROQ_MODELS = ['llama-3.3-70b-versatile', 'llama-3.1-8b-instant', 'gemma2-9b-it'];
@@ -2075,7 +2173,9 @@ li.task.done .t-text{color:var(--sub); text-decoration:line-through; font-weight
     if(jsonMode) generationConfig.responseMimeType = 'application/json';
     body.generationConfig = generationConfig;
 
-    var url = 'https://generativelanguage.googleapis.com/v1beta/models/' + getModel() + ':generateContent?key=' + encodeURIComponent(key);
+    // Nieuwe Google AI Studio-keys (beginnen met "AQ.") worden geweigerd als je de key
+    // óók als ?key=... in de URL meestuurt. Alleen de x-goog-api-key header gebruiken.
+    var url = 'https://generativelanguage.googleapis.com/v1beta/models/' + getModel() + ':generateContent';
     return fetch(url, {
       method:'POST',
       headers:{ 'Content-Type':'application/json', 'x-goog-api-key': key },
@@ -3497,6 +3597,7 @@ li.task.done .t-text{color:var(--sub); text-decoration:line-through; font-weight
 
   /* ---------- Init ---------- */
   setGreeting();
+  setHomeHeroQuote();
   renderList();
   renderChat();
   renderAiSuggestions();
