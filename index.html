@@ -2364,11 +2364,11 @@ li.task.done .t-text{color:var(--sub); text-decoration:line-through; font-weight
   }
 
   var AI_SUGGESTIONS = [
-    'Plan mijn dag in',
-    'Wat staat er vandaag op de planning?',
-    'Verzet mijn open taken naar morgen',
-    'Voeg toe: boodschappen doen',
-    'Wat kan ik nu het beste eerst doen?'
+    'Plan kapper donderdag 13:00',
+    'Wat staat er vandaag?',
+    'Wat staat er morgen?',
+    'Verzet de kapper naar vrijdag',
+    'Boodschappen is klaar'
   ];
 
   function renderAiSuggestions(){
@@ -2516,6 +2516,230 @@ li.task.done .t-text{color:var(--sub); text-decoration:line-through; font-weight
       'Gebruik "actions": [] als er niets hoeft te veranderen. Gebruik alleen bestaande id\'s uit de lijst hierboven.';
   }
 
+  /* ================================================================
+     VINK AI — ingebouwde Nederlandse planningsassistent.
+     Werkt altijd: geen internet of API-key nodig. Herkent zelf datums,
+     tijden en taken in zinnen als "plan kapper donderdag 13:00".
+     ================================================================ */
+  var NL_WEEKDAYS = { zondag:0, maandag:1, dinsdag:2, woensdag:3, donderdag:4, vrijdag:5, zaterdag:6 };
+
+  function capitalize(s){ return s ? s.charAt(0).toUpperCase() + s.slice(1) : s; }
+
+  function fmtDateNice(ds){
+    if(ds === todayStr()) return 'vandaag';
+    if(ds === shiftDate(todayStr(),1)) return 'morgen';
+    var d = parseDateStr(ds);
+    return d.toLocaleDateString('nl-NL', { weekday:'long', day:'numeric', month:'long' });
+  }
+
+  // Haalt datum + tijd uit een Nederlandse zin en onthoudt welke stukken gematcht zijn.
+  function parseDutchWhen(text){
+    var lower = ' ' + text.toLowerCase() + ' ';
+    var matched = [];
+    var date = null, time = null, eveningHint = false;
+
+    var explicit = detectExplicitDateHint(text);
+    if(explicit){ date = explicit.date; matched.push(explicit.text.toLowerCase()); }
+
+    if(!date){
+      var m = /\b(aankomende|aanstaande|eerstvolgende|komende|volgende week|volgende|deze)?\s*(maandag|dinsdag|woensdag|donderdag|vrijdag|zaterdag|zondag)\b/.exec(lower);
+      if(m){
+        var prefix = (m[1] || '').trim();
+        var target = NL_WEEKDAYS[m[2]];
+        var cur = new Date().getDay();
+        var diff = (target - cur + 7) % 7;
+        if(diff === 0 && prefix) diff = 7;
+        if(prefix === 'volgende week' || prefix === 'volgende'){ if(diff !== 7) diff += 7; }
+        date = shiftDate(todayStr(), diff);
+        matched.push(m[0].trim());
+      }
+    }
+    if(!date){
+      if(lower.indexOf(' overmorgen ') !== -1){ date = shiftDate(todayStr(), 2); matched.push('overmorgen'); }
+      else if(lower.indexOf(' morgenavond ') !== -1){ date = shiftDate(todayStr(), 1); eveningHint = true; matched.push('morgenavond'); }
+      else if(lower.indexOf(' morgen ') !== -1){ date = shiftDate(todayStr(), 1); matched.push('morgen'); }
+      else {
+        var w2 = /\b(vandaag|vanavond|vanmiddag|vanochtend|vanmorgen)\b/.exec(lower);
+        if(w2){
+          date = todayStr();
+          if(w2[1] === 'vanavond') eveningHint = true;
+          matched.push(w2[1]);
+        }
+      }
+    }
+    if(!date){
+      var mo = /\bover (\d+) (dag|dagen|week|weken)\b/.exec(lower);
+      if(mo){
+        var n = parseInt(mo[1],10) * (mo[2].indexOf('we') === 0 ? 7 : 1);
+        date = shiftDate(todayStr(), n);
+        matched.push(mo[0]);
+      }
+    }
+
+    var tm = /\b([01]?\d|2[0-3])[:.]([0-5]\d)\b/.exec(lower);
+    if(tm){
+      time = ('0'+tm[1]).slice(-2) + ':' + tm[2];
+      matched.push(tm[0]);
+    } else {
+      var tu = /\bom (\d{1,2})\s*(?:uur)?\b/.exec(lower);
+      if(tu){ time = ('0'+tu[1]).slice(-2) + ':00'; matched.push(tu[0]); }
+      else {
+        var th = /\b(?:om )?half (\d{1,2})\b/.exec(lower);
+        if(th){ var hh2 = parseInt(th[1],10) - 1; if(hh2 < 0) hh2 = 23; time = ('0'+hh2).slice(-2) + ':30'; matched.push(th[0]); }
+      }
+    }
+    if(!time && eveningHint) time = '19:00';
+    if(time && !date) date = todayStr();
+    return { date: date, time: time, matched: matched };
+  }
+
+  // Verwijdert gematchte datum/tijd + vulwoorden zodat de kale taak overblijft.
+  function extractTaskText(text, matched){
+    var t = ' ' + text + ' ';
+    matched.forEach(function(sub){
+      var idx = t.toLowerCase().indexOf(sub);
+      if(idx !== -1) t = t.slice(0, idx) + ' ' + t.slice(idx + sub.length);
+    });
+    t = t.replace(/\b(plan|planning|inplannen|ingepland|zet|voeg|toe|graag|even|alsjeblieft|aub|in de agenda|in mijn agenda|in de kalender|agenda|kalender|een afspraak voor|een afspraak|afspraak voor|herinner me aan|herinner mij aan|herinner me|herinner|eraan|dat ik|dat we|moet ik|ik moet|wil ik|ik wil|ik heb|voor|om|dat|dan|erin|in|op|bij|naar|de|het|een|uur)\b/gi, ' ');
+    t = t.replace(/\s+/g, ' ').trim();
+    return capitalize(t);
+  }
+
+  var CATEGORY_RULES = [
+    ['Afspraak', ['kapper','tandarts','dokter','huisarts','fysio','ziekenhuis','garage','notaris','gemeente']],
+    ['Boodschappen', ['boodschappen','supermarkt','albert heijn','jumbo','lidl','aldi','plus','winkel']],
+    ['Sport', ['sport','gym','sportschool','hardlopen','rennen','voetbal','fitness','trainen','training','zwemmen','padel','tennis']],
+    ['Werk', ['werk','vergadering','meeting','presentatie','rapport','klant','collega','deadline','sollicitatie']],
+    ['School', ['school','huiswerk','toets','tentamen','studeren','college','les','opdracht']],
+    ['Huishouden', ['schoonmaken','stofzuigen','wassen','afwas','opruimen','strijken','tuin','vuilnis']],
+    ['Contact', ['bellen','bel','appen','mailen','mail','videobellen']]
+  ];
+  function guessCategory(text){
+    var lower = ' ' + text.toLowerCase() + ' ';
+    for(var i = 0; i < CATEGORY_RULES.length; i++){
+      var words = CATEGORY_RULES[i][1];
+      for(var j = 0; j < words.length; j++){
+        if(lower.indexOf(' ' + words[j]) !== -1) return CATEGORY_RULES[i][0];
+      }
+    }
+    return null;
+  }
+  function guessPriority(text){
+    return /\b(belangrijk|dringend|urgent|met spoed|snel)\b/i.test(text) ? 'hoog' : null;
+  }
+
+  function findTaskByText(q, includeDone){
+    var words = q.toLowerCase().split(/\s+/).filter(function(w){ return w.length > 2; });
+    var best = null, bestScore = 0;
+    tasks.forEach(function(t){
+      if(!includeDone && t.done) return;
+      var tl = t.text.toLowerCase();
+      var score = 0;
+      words.forEach(function(w){ if(tl.indexOf(w) !== -1) score++; });
+      if(score > bestScore){ bestScore = score; best = t; }
+    });
+    return bestScore > 0 ? best : null;
+  }
+
+  // De eigenlijke ingebouwde assistent. Geeft {reply} terug of null (→ online AI proberen).
+  function localAssistant(raw){
+    var text = raw.trim();
+    if(!text) return null;
+    var lower = text.toLowerCase();
+    var when = parseDutchWhen(text);
+
+    // — Vraag: wat staat er...?
+    if(/(wat staat|wat moet ik|wat heb ik|mijn planning|wat is er te doen|wat doe ik)/.test(lower)){
+      var qd = when.date || todayStr();
+      var dayTasks = tasks.filter(function(t){ return (t.date || todayStr()) === qd && !t.done; });
+      var dayShared = sharedForDate(qd).filter(function(s){ return !s.done; });
+      if(!dayTasks.length && !dayShared.length){
+        return { reply: 'Er staat niets gepland voor ' + fmtDateNice(qd) + '. Lekker rustig! 🎉' };
+      }
+      dayTasks.sort(function(a,b){ return (a.time || '99:99') < (b.time || '99:99') ? -1 : 1; });
+      var lines = [];
+      dayTasks.forEach(function(t){ lines.push('• ' + (t.time ? t.time + ' — ' : '') + t.text); });
+      dayShared.forEach(function(s){ lines.push('• ' + (s.time ? s.time + ' — ' : '') + s.text + ' (samen met ' + sharedPartnerName(s) + ')'); });
+      return { reply: capitalize(fmtDateNice(qd)) + ':\n' + lines.join('\n') };
+    }
+
+    // — Afgeronde taken opruimen
+    if(/verwijder.*(afgeronde|voltooide|klare)|ruim.*op/.test(lower) && /taken|taak|lijst/.test(lower)){
+      var doneCount = tasks.filter(function(t){ return t.done; }).length;
+      if(!doneCount) return { reply: 'Er zijn geen afgeronde taken om op te ruimen.' };
+      tasks = tasks.filter(function(t){ return !t.done; });
+      saveTasks(); renderList(); renderCalendar(); renderStats();
+      return { reply: '🧹 ' + doneCount + ' afgeronde ' + (doneCount === 1 ? 'taak' : 'taken') + ' opgeruimd.' };
+    }
+
+    // — Afvinken
+    if(/\b(is klaar|is gedaan|is af|afgerond|voltooid|als klaar|als gedaan|gelukt)\b/.test(lower) || /\bvink\b.*\baf\b/.test(lower)){
+      var q1 = lower.replace(/\b(markeer|vink|zet|als|is|klaar|gedaan|af|afgerond|voltooid|gelukt|de|het|een|mijn|taak)\b/g, ' ');
+      var tDone = findTaskByText(q1, false);
+      if(tDone){
+        tDone.done = true; tDone.completedAt = Date.now();
+        saveTasks(); renderList(); renderCalendar(); renderStats();
+        return { reply: '✅ "' + tDone.text + '" afgevinkt. Goed bezig!' };
+      }
+      return { reply: 'Ik kon die taak niet vinden. Welke taak bedoel je precies?' };
+    }
+
+    // — Verwijderen
+    if(/\b(verwijder|schrap|haal weg|weghalen|wis)\b/.test(lower)){
+      var q2 = lower.replace(/\b(verwijder|schrap|haal|weg|weghalen|wis|de|het|een|mijn|taak|uit|van|lijst|agenda)\b/g, ' ');
+      var tDel = findTaskByText(q2, true);
+      if(tDel){
+        tasks = tasks.filter(function(x){ return x.id !== tDel.id; });
+        saveTasks(); renderList(); renderCalendar(); renderStats();
+        return { reply: '🗑️ "' + tDel.text + '" verwijderd.' };
+      }
+      return { reply: 'Ik kon die taak niet vinden om te verwijderen.' };
+    }
+
+    // — Verzetten / verplaatsen
+    if(/\b(verzet|verplaats|verschuif)\b/.test(lower)){
+      if(!when.date && !when.time){
+        return { reply: 'Naar wanneer wil je het verzetten? Zeg bijv. "verzet de kapper naar vrijdag 14:00".' };
+      }
+      var q3 = lower.replace(/\b(verzet|verplaats|verschuif|naar|de|het|een|mijn|taak|van)\b/g, ' ');
+      when.matched.forEach(function(sub){ q3 = q3.replace(sub, ' '); });
+      var tMove = findTaskByText(q3, false);
+      if(tMove){
+        if(when.date) tMove.date = when.date;
+        if(when.time){ tMove.time = when.time; if(!tMove.duration) tMove.duration = 60; }
+        saveTasks(); renderList(); renderCalendar(); renderStats();
+        return { reply: '📅 "' + tMove.text + '" verzet naar ' + fmtDateNice(tMove.date) + (tMove.time ? ' om ' + tMove.time : '') + '.' };
+      }
+      return { reply: 'Ik kon die taak niet vinden om te verzetten.' };
+    }
+
+    // — Toevoegen / inplannen
+    var wantsAdd = /\b(plan|voeg|zet|herinner|maak|noteer|inplannen)\b/.test(lower);
+    if(wantsAdd || when.date || when.time){
+      var taskText = extractTaskText(text, when.matched);
+      if(!taskText || taskText.length < 2){
+        return { reply: 'Wat wil je precies inplannen' + (when.date ? ' voor ' + fmtDateNice(when.date) : '') + '?' };
+      }
+      var cat = guessCategory(taskText);
+      addTask(taskText, {
+        date: when.date || todayStr(),
+        time: when.time || null,
+        duration: 60,
+        priority: guessPriority(text),
+        category: cat
+      });
+      var replyTxt = when.time
+        ? '📅 Ingepland: ' + taskText + ' — ' + fmtDateNice(when.date || todayStr()) + ' om ' + when.time + '.'
+        : (when.date
+          ? '📅 Ingepland: ' + taskText + ' — ' + fmtDateNice(when.date) + '.'
+          : '✅ Toegevoegd: ' + taskText + '.');
+      if(cat) replyTxt += ' (' + cat + ')';
+      return { reply: replyTxt };
+    }
+
+    return null;
+  }
+
   function sendChat(){
     var v = chatInput.value.trim();
     if(!v) return;
@@ -2523,6 +2747,19 @@ li.task.done .t-text{color:var(--sub); text-decoration:line-through; font-weight
     chatHistory.push({ role:'user', content:v, ts: Date.now() });
     saveChat(); renderChat(); addTyping();
 
+    // Eerst de ingebouwde Vink AI — werkt altijd, ook zonder internet of API-key.
+    var local = null;
+    try { local = localAssistant(v); } catch(e){ local = null; }
+    if(local){
+      setTimeout(function(){
+        removeTyping();
+        chatHistory.push({ role:'assistant', content: local.reply, ts: Date.now() });
+        saveChat(); renderChat();
+      }, 400);
+      return;
+    }
+
+    // Anders: online AI proberen voor complexere vragen.
     var explicitHint = detectExplicitDateHint(v);
     var sys = buildAssistantSystemPrompt(explicitHint);
     var recent = chatHistory.slice(-8).map(function(m){ return { role: m.role, content: m.content }; });
@@ -2537,10 +2774,8 @@ li.task.done .t-text{color:var(--sub); text-decoration:line-through; font-weight
       saveChat(); renderChat();
     }).catch(function(err){
       removeTyping();
-      if(err.message !== 'no-key'){
-        chatHistory.push({ role:'assistant', content: 'Er ging iets mis: ' + err.message, ts: Date.now() });
-        saveChat(); renderChat();
-      }
+      chatHistory.push({ role:'assistant', content: 'Dat snapte ik niet helemaal, en de online AI is even niet bereikbaar. Ik kan zelf wél plannen — probeer bijvoorbeeld:\n• "plan kapper donderdag 13:00"\n• "wat staat er morgen?"\n• "verzet de kapper naar vrijdag"\n• "boodschappen is klaar"', ts: Date.now() });
+      saveChat(); renderChat();
     });
   }
 
