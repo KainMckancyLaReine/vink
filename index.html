@@ -779,42 +779,64 @@ li.task.done .t-text{color:var(--sub); text-decoration:line-through; font-weight
 .btn-secondary{background:var(--tint-soft); color:var(--tint-deep);}
 .btn-primary:disabled,.btn-secondary:disabled{opacity:.5;}
 
-/* ---------- Splash ---------- */
-#splash{
-  position:absolute; inset:0; z-index:200;
-  background:var(--bg);
-  display:flex; flex-direction:column; align-items:center; justify-content:center;
-  transition:opacity .45s ease, visibility .45s ease;
-}
-#splash.hide{opacity:0; visibility:hidden; pointer-events:none;}
-.splash-tile{
-  width:104px; height:104px; border-radius:26px;
-  background:var(--tint-grad);
+/* ---------- Preloader ---------- */
+#preloader{
+  position:fixed; inset:0; z-index:999999;
   display:flex; align-items:center; justify-content:center;
-  box-shadow:0 24px 50px -14px rgba(255,110,30,.55);
-  animation:splashPop .7s var(--spring) backwards;
+  overflow:hidden; background:#f7f8fc;
+  transition:opacity .6s ease, visibility .6s ease;
 }
-.splash-tile svg{width:58px; height:58px;}
-.splash-word{
-  font-size:30px; font-weight:800; letter-spacing:-0.9px; margin-top:20px;
-  animation:splashPop .7s var(--spring) .1s backwards;
+#preloader.hide{opacity:0; visibility:hidden; pointer-events:none;}
+.preloader-glow{
+  position:absolute; width:450px; height:450px; filter:blur(20px);
+  background:radial-gradient(circle, rgba(255,122,0,.15), transparent 70%);
+  animation:preloaderPulse 3s infinite;
 }
-.splash-tagline{
-  font-size:14px; font-weight:500; color:var(--sub); margin-top:4px;
-  animation:splashPop .7s var(--spring) .18s backwards;
+.preloader-content{
+  position:relative; display:flex; flex-direction:column; align-items:center;
+  animation:preloaderFadeIn .7s ease;
 }
-.splash-progress{
-  width:110px; height:4px; border-radius:4px;
-  background:var(--sep); overflow:hidden; margin-top:28px; position:relative;
-  animation:splashPop .7s var(--spring) .26s backwards;
+.preloader-logo{width:95px; height:95px; overflow:visible;}
+.preloader-ring{
+  fill:none; stroke:#ff7a00; stroke-width:8; stroke-linecap:round;
+  stroke-dasharray:264; stroke-dashoffset:264;
+  animation:preloaderRingDraw 1s ease forwards;
 }
-.splash-progress-fill{
-  position:absolute; top:0; bottom:0; width:40%; border-radius:4px;
-  background:var(--tint-grad);
-  animation:splashSlide 1.2s cubic-bezier(.4,0,.2,1) infinite;
+.preloader-check{
+  fill:none; stroke:url(#preloader-grad); stroke-width:8; stroke-linecap:round; stroke-linejoin:round;
+  stroke-dasharray:70; stroke-dashoffset:70;
+  animation:preloaderCheckDraw .6s .8s forwards;
 }
-@keyframes splashSlide{0%{left:-40%;} 100%{left:100%;}}
-@keyframes splashPop{from{opacity:0; transform:translateY(14px) scale(.92);} to{opacity:1; transform:none;}}
+.preloader-spark{
+  fill:#ffb000; opacity:0; transform-origin:center;
+  animation:preloaderSpark .6s 1.4s forwards;
+}
+.preloader-title{
+  margin:22px 0 0; font-size:44px; font-weight:700; line-height:1;
+  color:#09112f; letter-spacing:-1px; opacity:0;
+  animation:preloaderText .5s 1.2s forwards;
+}
+.preloader-subtitle{
+  margin:6px 0 0; font-size:17px; color:#888; opacity:0;
+  animation:preloaderText .5s 1.4s forwards;
+}
+.preloader-loader{
+  width:180px; height:6px; margin-top:45px; overflow:hidden;
+  background:#ececec; border-radius:30px;
+}
+.preloader-progress{
+  width:0; height:100%; border-radius:30px;
+  background:linear-gradient(90deg,#ff7a00,#ffb000);
+  box-shadow:0 0 15px rgba(255,140,0,.35);
+  animation:preloaderLoading 2.2s forwards;
+}
+@keyframes preloaderLoading{to{width:100%;}}
+@keyframes preloaderRingDraw{to{stroke-dashoffset:0;}}
+@keyframes preloaderCheckDraw{to{stroke-dashoffset:0;}}
+@keyframes preloaderSpark{0%{opacity:0;transform:scale(.3);}70%{opacity:1;transform:scale(1.2);}100%{opacity:1;transform:scale(1);}}
+@keyframes preloaderFadeIn{from{opacity:0;transform:translateY(20px);}}
+@keyframes preloaderText{to{opacity:1;}}
+@keyframes preloaderPulse{0%,100%{transform:scale(.8);opacity:.2;}50%{transform:scale(1.2);opacity:.4;}}
 
 /* ---------- Toast ---------- */
 #toast{
@@ -899,16 +921,24 @@ li.task.done .t-text{color:var(--sub); text-decoration:line-through; font-weight
 </head>
 <body>
 
-<!-- Splash -->
-<div id="splash">
-  <div class="splash-tile">
-    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-      <path d="M27 52l14 14 32-32" stroke="white" stroke-width="11" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<!-- Preloader -->
+<div id="preloader" aria-label="Vink wordt geladen" role="status">
+  <div class="preloader-glow"></div>
+  <div class="preloader-content">
+    <svg class="preloader-logo" viewBox="0 0 120 120" aria-hidden="true">
+      <defs>
+        <linearGradient id="preloader-grad" x1="43" y1="48" x2="82" y2="75" gradientUnits="userSpaceOnUse">
+          <stop stop-color="#ff7a00"/><stop offset="1" stop-color="#ffb000"/>
+        </linearGradient>
+      </defs>
+      <circle class="preloader-ring" cx="60" cy="60" r="42"/>
+      <path class="preloader-check" d="M43 62 L56 75 L82 48"/>
+      <path class="preloader-spark" d="M60 8 L63 16 L71 19 L63 22 L60 30 L57 22 L49 19 L57 16Z"/>
     </svg>
+    <h1 class="preloader-title">Vink</h1>
+    <p class="preloader-subtitle">Plan. Focus. Klaar.</p>
+    <div class="preloader-loader"><div class="preloader-progress"></div></div>
   </div>
-  <div class="splash-word">Vink</div>
-  <div class="splash-tagline">Rustig plannen, samen doen.</div>
-  <div class="splash-progress"><div class="splash-progress-fill"></div></div>
 </div>
 
 <!-- ============ HOME / VANDAAG ============ -->
@@ -3839,23 +3869,23 @@ li.task.done .t-text{color:var(--sub); text-decoration:line-through; font-weight
   renderStats();
   renderChatList();
   (function(){
-    var MIN_SPLASH_MS = 600;
-    var MAX_SPLASH_MS = 2400;
+    var MIN_PRELOADER_MS = 2300;
+    var MAX_PRELOADER_MS = 3000;
     var startedAt = Date.now();
     var hidden = false;
-    function hideSplash(){
+    function hidePreloader(){
       if(hidden) return;
       hidden = true;
       var elapsed = Date.now() - startedAt;
-      var wait = Math.max(0, MIN_SPLASH_MS - elapsed);
+      var wait = Math.max(0, MIN_PRELOADER_MS - elapsed);
       setTimeout(function(){
-        var splash = document.getElementById('splash');
-        if(splash) splash.classList.add('hide');
+        var preloader = document.getElementById('preloader');
+        if(preloader) preloader.classList.add('hide');
       }, wait);
     }
-    if(document.readyState === 'complete'){ hideSplash(); }
-    else { window.addEventListener('load', hideSplash); }
-    setTimeout(hideSplash, MAX_SPLASH_MS);
+    if(document.readyState === 'complete'){ hidePreloader(); }
+    else { window.addEventListener('load', hidePreloader); }
+    setTimeout(hidePreloader, MAX_PRELOADER_MS);
   })();
   // Standaard Firebase-project — web-config is niet geheim (beveiliging loopt via Firestore rules).
   var DEFAULT_FIREBASE_CONFIG = {
