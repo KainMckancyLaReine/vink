@@ -779,6 +779,16 @@ li.task.done .t-text{color:var(--sub); text-decoration:line-through; font-weight
 .btn-secondary{background:var(--tint-soft); color:var(--tint-deep);}
 .btn-primary:disabled,.btn-secondary:disabled{opacity:.5;}
 
+/* ---------- Planivo focus & eerste gebruik ---------- */
+.focus-card{margin:4px 20px 14px; padding:17px; border-radius:var(--r-lg); background:linear-gradient(135deg,#fff7ee,#fff); box-shadow:var(--shadow-card); border:1px solid rgba(255,122,0,.12);}
+.focus-kicker{font-size:11px; font-weight:800; color:var(--tint-deep); letter-spacing:.6px; text-transform:uppercase;}
+.focus-task{font-size:18px; font-weight:780; letter-spacing:-.35px; margin:5px 0 12px; line-height:1.25;}
+.focus-meta{font-size:13px; color:var(--sub); margin-bottom:13px;}
+.focus-actions{display:flex; gap:9px; align-items:center;}.focus-start{border:0; border-radius:12px; padding:10px 14px; color:#fff; background:var(--tint-grad); font-weight:750;}.focus-skip{border:0;background:transparent;color:var(--tint-deep);font-weight:700;padding:9px;}
+.quick-add{display:flex; gap:8px; margin:0 20px 12px;}.quick-add input{min-width:0;flex:1;border:0;border-radius:14px;background:var(--card);box-shadow:var(--shadow-card);padding:13px 14px;font:inherit;color:var(--text);outline:none;}.quick-add button{width:45px;border:0;border-radius:14px;color:#fff;background:var(--tint-grad);font-size:24px;line-height:1;}
+.today-progress{margin:0 20px 12px;font-size:13px;color:var(--sub);font-weight:600;}.today-progress b{color:var(--text);}
+.onboarding{position:fixed;inset:0;z-index:999998;background:rgba(9,17,47,.35);display:flex;align-items:flex-end;padding:16px;backdrop-filter:blur(8px);}.onboarding.hide{display:none;}.onboarding-card{width:100%;background:#fff;border-radius:26px;padding:26px 22px calc(22px + env(safe-area-inset-bottom));box-shadow:var(--shadow-float);}.onboarding-card h2{margin:0;font-size:27px;letter-spacing:-.7px;}.onboarding-card p{margin:8px 0 20px;color:var(--sub);line-height:1.45;}.onboarding-options{display:grid;gap:10px;}.onboarding-choice{border:1px solid var(--sep);border-radius:15px;background:var(--card);padding:14px;text-align:left;font:inherit;color:var(--text);}.onboarding-choice strong{display:block;font-size:15px;}.onboarding-choice span{display:block;color:var(--sub);font-size:13px;margin-top:3px;}
+
 /* ---------- Preloader ---------- */
 #preloader{
   position:fixed; inset:0; z-index:999999;
@@ -941,6 +951,19 @@ li.task.done .t-text{color:var(--sub); text-decoration:line-through; font-weight
   </div>
 </div>
 
+<!-- Eerste gebruik -->
+<div class="onboarding hide" id="onboarding" role="dialog" aria-modal="true" aria-labelledby="onboardingTitle">
+  <div class="onboarding-card">
+    <h2 id="onboardingTitle">Welkom bij Planivo</h2>
+    <p>We maken je eerste dag meteen overzichtelijk. Waar wil je mee beginnen?</p>
+    <div class="onboarding-options">
+      <button class="onboarding-choice" data-onboarding="personal"><strong>Mijn dag plannen</strong><span>Start met drie rustige voorbeeldtaken.</span></button>
+      <button class="onboarding-choice" data-onboarding="shared"><strong>Samen plannen</strong><span>Plan eerst voor jezelf, nodig daarna een vriend uit.</span></button>
+      <button class="onboarding-choice" data-onboarding="empty"><strong>Ik begin blanco</strong><span>Ik voeg liever zelf mijn eerste taak toe.</span></button>
+    </div>
+  </div>
+</div>
+
 <!-- ============ HOME / VANDAAG ============ -->
 <section class="view active" id="view-home">
   <div class="lt-head">
@@ -958,6 +981,15 @@ li.task.done .t-text{color:var(--sub); text-decoration:line-through; font-weight
       </div>
     </div>
   </div>
+
+  <div class="focus-card" id="focusCard">
+    <div class="focus-kicker">Jouw focus nu</div>
+    <div class="focus-task" id="focusTask">Kies één kleine stap voor vandaag</div>
+    <div class="focus-meta" id="focusMeta">Een taak tegelijk geeft rust.</div>
+    <div class="focus-actions"><button class="focus-start" id="focusStart">Start focus</button><button class="focus-skip" id="focusSkip">Volgende taak</button></div>
+  </div>
+  <div class="quick-add"><input id="quickAddInput" type="text" placeholder="Snel toevoegen: morgen 15:00 tandarts bellen"><button id="quickAddBtn" aria-label="taak toevoegen">+</button></div>
+  <div class="today-progress" id="todayProgress">Vandaag: <b>0 van 0 klaar</b></div>
 
   <div class="home-hero">
     <img alt="" loading="eager" id="homeHeroImg"
@@ -1141,7 +1173,7 @@ li.task.done .t-text{color:var(--sub); text-decoration:line-through; font-weight
     <div class="lt-row">
       <div>
         <h1>Profiel</h1>
-        <div class="sub">Account, vrienden &amp; instellingen</div>
+        <div class="sub">Jouw account en planning</div>
       </div>
     </div>
   </div>
@@ -1177,7 +1209,7 @@ li.task.done .t-text{color:var(--sub); text-decoration:line-through; font-weight
             <span id="fbStatusDot" style="width:9px; height:9px; border-radius:50%; background:var(--success); flex-shrink:0;"></span>
             <span id="firebaseStatus" style="font-size:14.5px; font-weight:600; min-width:0;">Verbinden...</span>
           </span>
-          <button type="button" class="mini-btn" id="toggleFbAdvanced">Geavanceerd</button>
+          <button type="button" class="mini-btn" id="toggleFbAdvanced">Technisch</button>
         </div>
       </div>
       <div id="fbAdvancedPanel" style="display:none;">
@@ -1274,7 +1306,7 @@ li.task.done .t-text{color:var(--sub); text-decoration:line-through; font-weight
     </div>
 
     <button type="button" class="settings-btn pressable" id="toggleAdvancedSettings" style="margin-top:22px;">
-      <span class="sb-left"><span class="sb-icon" style="background:#8E8E93;"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>Instellingen &amp; AI</span>
+      <span class="sb-left"><span class="sb-icon" style="background:#8E8E93;"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>Meer instellingen</span>
       <span class="chev" id="advSettingsChev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
     </button>
     <div id="advancedSettingsPanel" style="display:none;">
@@ -1377,6 +1409,9 @@ li.task.done .t-text{color:var(--sub); text-decoration:line-through; font-weight
       </div>
       <div class="form-grid">
         <input type="date" id="taskDate">
+        <select id="taskRepeat" aria-label="herhalen">
+          <option value="">Eenmalig</option><option value="daily">Dagelijks</option><option value="weekdays">Werkdagen</option><option value="weekly">Wekelijks</option>
+        </select>
       </div>
       <button type="button" class="time-toggle pressable" id="timeToggle">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 14"/></svg>
@@ -1486,6 +1521,7 @@ li.task.done .t-text{color:var(--sub); text-decoration:line-through; font-weight
   var LS_FB_CONFIG = 'do-firebase-config';
   var LS_PHOTO = 'do-profile-photo';
   var LS_LASTREAD = 'vink-lastread';
+  var LS_ONBOARDING = 'planivo-onboarding-complete';
 
   function loadJSON(key, fallback){
     try { var raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback; }
@@ -1518,6 +1554,16 @@ li.task.done .t-text{color:var(--sub); text-decoration:line-through; font-weight
     d.setDate(d.getDate() + days);
     return todayStr(d);
   }
+  function nextRepeatDate(dateStr, repeat){
+    if(repeat === 'daily') return shiftDate(dateStr, 1);
+    if(repeat === 'weekly') return shiftDate(dateStr, 7);
+    if(repeat === 'weekdays'){
+      var next = shiftDate(dateStr, 1);
+      while([0,6].indexOf(parseDateStr(next).getDay()) !== -1) next = shiftDate(next, 1);
+      return next;
+    }
+    return shiftDate(dateStr, 1);
+  }
   function fmtClock(ts){
     var d = new Date(ts);
     return ('0'+d.getHours()).slice(-2) + ':' + ('0'+d.getMinutes()).slice(-2);
@@ -1528,7 +1574,7 @@ li.task.done .t-text{color:var(--sub); text-decoration:line-through; font-weight
     if(ds === shiftDate(todayStr(), -1)) return 'Gisteren';
     return new Date(ts).toLocaleDateString('nl-NL', { day:'numeric', month:'short' });
   }
-  tasks.forEach(function(t){ if(!t.date) t.date = todayStr(); });
+  tasks.forEach(function(t){ if(!t.date) t.date = todayStr(); if(!t.repeat) t.repeat = ''; });
   var selectedDate = todayStr();
 
   function saveTasks(){
@@ -1619,6 +1665,39 @@ li.task.done .t-text{color:var(--sub); text-decoration:line-through; font-weight
     el.textContent = CALM_QUOTES[dayOfYear % CALM_QUOTES.length];
   }
 
+  /* ---------- Focus, snelle invoer en onboarding ---------- */
+  var focusIndex = 0;
+  function renderFocus(){
+    var candidates = tasks.filter(function(t){ return !t.done && (t.date || todayStr()) <= todayStr(); })
+      .sort(function(a,b){ return (a.priority === 'hoog' ? -1 : 0) - (b.priority === 'hoog' ? -1 : 0) || (a.time || '99:99').localeCompare(b.time || '99:99'); });
+    var task = candidates[focusIndex % Math.max(candidates.length, 1)];
+    var taskEl = document.getElementById('focusTask'), metaEl = document.getElementById('focusMeta'), start = document.getElementById('focusStart');
+    if(!task){ taskEl.textContent = 'Je dag is vrij. Kies iets dat goed voelt.'; metaEl.textContent = 'Een rustige start is ook vooruitgang.'; start.textContent = 'Nieuwe taak'; start.dataset.id = ''; return; }
+    taskEl.textContent = task.text;
+    metaEl.textContent = (task.time ? 'Gepland om ' + task.time + ' · ' : '') + (task.duration || 25) + ' minuten voor jezelf';
+    start.textContent = 'Start ' + (task.duration || 25) + ' min'; start.dataset.id = task.id;
+  }
+  function parseQuickTask(value){
+    var text = value.trim(), date = todayStr(), time = null;
+    if(/\bmorgen\b/i.test(text)){ date = shiftDate(date,1); text = text.replace(/\bmorgen\b/i,'').trim(); }
+    var timeMatch = text.match(/\b([01]?\d|2[0-3])[:.]([0-5]\d)\b/);
+    if(timeMatch){ time = ('0'+timeMatch[1]).slice(-2) + ':' + timeMatch[2]; text = text.replace(timeMatch[0],'').trim(); }
+    return { text:text, date:date, time:time };
+  }
+  document.getElementById('quickAddBtn').addEventListener('click', function(){
+    var input = document.getElementById('quickAddInput'), parsed = parseQuickTask(input.value);
+    if(!parsed.text) return;
+    addTask(parsed.text, {date:parsed.date, time:parsed.time, duration:parsed.time ? 30 : null}); input.value = ''; showToast('Toegevoegd' + (parsed.time ? ' om ' + parsed.time : ''));
+  });
+  document.getElementById('quickAddInput').addEventListener('keydown', function(e){ if(e.key === 'Enter') document.getElementById('quickAddBtn').click(); });
+  document.getElementById('focusSkip').addEventListener('click', function(){ focusIndex++; renderFocus(); });
+  document.getElementById('focusStart').addEventListener('click', function(){ var id = this.dataset.id; if(!id){ openSheet(); return; } var t = tasks.find(function(x){return x.id===id;}); if(t){ openSheet(t); showToast('Focus op één stap tegelijk ✦'); } });
+  document.querySelectorAll('[data-onboarding]').forEach(function(btn){ btn.addEventListener('click', function(){
+    var choice = btn.dataset.onboarding;
+    if(choice !== 'empty' && !tasks.length){ addTask('Kies je belangrijkste taak', {priority:'hoog'}); addTask('Plan een rustmoment', {priority:'normaal'}); addTask('Rond één kleine taak af', {priority:'laag'}); }
+    localStorage.setItem(LS_ONBOARDING, '1'); document.getElementById('onboarding').classList.add('hide'); renderFocus();
+  }); });
+
   /* ---------- Segmented control ---------- */
   var segBtns = document.querySelectorAll('#filterSeg .seg-btn');
   var segThumb = document.getElementById('segThumb');
@@ -1648,13 +1727,16 @@ li.task.done .t-text{color:var(--sub); text-decoration:line-through; font-weight
   }
 
   function renderRing(){
-    var total = tasks.length;
-    var done = tasks.filter(function(t){return t.done;}).length;
+    var todayTasks = tasks.filter(function(t){ return (t.date || todayStr()) === todayStr(); });
+    var total = todayTasks.length;
+    var done = todayTasks.filter(function(t){return t.done;}).length;
     var pct = total ? Math.round((done/total)*100) : 0;
     var offset = CIRC - (pct/100)*CIRC;
     ringCircle.setAttribute('stroke-dasharray', CIRC.toFixed(1));
     ringCircle.setAttribute('stroke-dashoffset', offset.toFixed(1));
     ringPct.textContent = pct + '%';
+    var todayProgress = document.getElementById('todayProgress');
+    if(todayProgress) todayProgress.innerHTML = 'Vandaag: <b>' + done + ' van ' + total + ' klaar</b>';
   }
 
   function fmtDateShort(ds){
@@ -1709,6 +1791,7 @@ li.task.done .t-text{color:var(--sub); text-decoration:line-through; font-weight
         if(t.time) metaBits.push('<span>' + escapeHtml(t.time) + '</span>');
         if(t.priority && t.priority !== 'normaal') metaBits.push('<span class="m-prio-' + t.priority + '">' + priorityLabel(t.priority) + '</span>');
         if(t.category) metaBits.push('<span class="m-cat">' + escapeHtml(t.category) + '</span>');
+        if(t.repeat) metaBits.push('<span>↻ ' + ({daily:'dagelijks',weekdays:'werkdagen',weekly:'wekelijks'})[t.repeat] + '</span>');
       }
       if(metaBits.length){
         var meta = document.createElement('div');
@@ -1732,6 +1815,7 @@ li.task.done .t-text{color:var(--sub); text-decoration:line-through; font-weight
     });
 
     renderRing();
+    renderFocus();
     updateProfileStats();
     renderCalendar();
   }
@@ -2079,7 +2163,7 @@ li.task.done .t-text{color:var(--sub); text-decoration:line-through; font-weight
       priority: opts.priority || null, category: opts.category || null, aiPending:false,
       time: opts.time || null,
       duration: opts.time ? (parseInt(opts.duration,10) || 60) : null,
-      date: opts.date || todayStr()
+      date: opts.date || todayStr(), repeat: opts.repeat || ''
     };
     tasks.unshift(t);
     saveTasks();
@@ -2091,7 +2175,14 @@ li.task.done .t-text{color:var(--sub); text-decoration:line-through; font-weight
   }
   function toggleTask(id){
     var t = tasks.find(function(x){return x.id===id;});
-    if(t){ t.done = !t.done; t.completedAt = t.done ? Date.now() : null; }
+    if(t){
+      t.done = !t.done; t.completedAt = t.done ? Date.now() : null;
+      if(t.done && t.repeat){
+        var next = nextRepeatDate(t.date || todayStr(), t.repeat);
+        var exists = tasks.some(function(x){ return x.id !== t.id && x.text === t.text && x.date === next && x.repeat === t.repeat; });
+        if(!exists){ tasks.unshift({ id:uid(), text:t.text, done:false, created:Date.now(), priority:t.priority, category:t.category, aiPending:false, time:t.time, duration:t.duration, date:next, repeat:t.repeat }); showToast('Herhaald voor ' + fmtDateNice(next)); }
+      }
+    }
     saveTasks(); renderList(); renderCalendar(); renderStats();
   }
   function removeTask(id){
@@ -2113,6 +2204,7 @@ li.task.done .t-text{color:var(--sub); text-decoration:line-through; font-weight
     t.priority = (opts && opts.priority) || null;
     t.time = (opts && opts.time) || null;
     t.duration = t.time ? (parseInt(opts.duration, 10) || 60) : null;
+    t.repeat = (opts && opts.repeat) || '';
     if(!!done !== !!t.done){ t.done = !!done; t.completedAt = t.done ? Date.now() : null; }
     saveTasks(); renderList(); renderCalendar(); renderStats();
   }
@@ -2269,6 +2361,7 @@ li.task.done .t-text{color:var(--sub); text-decoration:line-through; font-weight
   var taskTime = document.getElementById('taskTime');
   var taskDuration = document.getElementById('taskDuration');
   var taskDate = document.getElementById('taskDate');
+  var taskRepeat = document.getElementById('taskRepeat');
   var sheetTitleText = document.getElementById('sheetTitleText');
   var sheetDoneToggle = document.getElementById('sheetDoneToggle');
   var deleteTaskBtn = document.getElementById('deleteTaskBtn');
@@ -2309,6 +2402,7 @@ li.task.done .t-text{color:var(--sub); text-decoration:line-through; font-weight
     taskTime.value = (task && task.time) || '09:00';
     taskDuration.value = (task && task.duration) ? String(task.duration) : '60';
     if(taskDate) taskDate.value = (task && task.date) || selectedDate || todayStr();
+    if(taskRepeat) taskRepeat.value = (task && task.repeat) || '';
 
     if(task){
       sheetTitleText.textContent = 'Taak bewerken';
@@ -2335,7 +2429,7 @@ li.task.done .t-text{color:var(--sub); text-decoration:line-through; font-weight
   addTaskBtn.addEventListener('click', function(){
     var v = taskInput.value.trim();
     if(!v) return;
-    var opts = { date: (taskDate && taskDate.value) || todayStr(), priority: sheetPriority || null };
+    var opts = { date: (taskDate && taskDate.value) || todayStr(), priority: sheetPriority || null, repeat: (taskRepeat && taskRepeat.value) || '' };
     if(timeFields.style.display !== 'none' && taskTime.value){
       opts.time = taskTime.value;
       opts.duration = taskDuration.value;
@@ -2822,6 +2916,18 @@ li.task.done .t-text{color:var(--sub); text-decoration:line-through; font-weight
   });
 
   /* ---------- AI: plan mijn dag ---------- */
+  function planDayLocally(){
+    var today = todayStr(), cursor = Math.max(9 * 60, new Date().getHours() * 60 + (new Date().getMinutes() > 0 ? 30 : 0));
+    var occupied = tasks.filter(function(t){ return !t.done && t.time && (t.date || today) === today; }).map(function(t){ var p=t.time.split(':'); return {start:+p[0]*60 + +p[1], end:(+p[0]*60 + +p[1]) + (t.duration || 60)}; });
+    var planned = 0;
+    tasks.filter(function(t){return !t.done && !t.time && (t.date || today) === today;}).sort(function(a,b){return (a.priority==='hoog'?-1:0)-(b.priority==='hoog'?-1:0);}).forEach(function(t){
+      var duration = t.duration || 30;
+      while(occupied.some(function(o){return cursor < o.end && cursor + duration > o.start;})) cursor += 30;
+      if(cursor + duration > 21*60) return;
+      t.time = ('0'+Math.floor(cursor/60)).slice(-2) + ':' + ('0'+(cursor%60)).slice(-2); t.duration = duration; occupied.push({start:cursor,end:cursor+duration}); cursor += duration + 15; planned++;
+    });
+    return planned;
+  }
   document.getElementById('planDayBtn').addEventListener('click', function(){
     var btn = this;
     var label = document.getElementById('planDayLabel');
@@ -2851,7 +2957,9 @@ li.task.done .t-text{color:var(--sub); text-decoration:line-through; font-weight
         showToast('AI kon geen planning maken');
       }
     }).catch(function(err){
-      if(err.message !== 'no-key') showToast('Plannen mislukt: ' + err.message);
+      var localCount = planDayLocally();
+      if(localCount){ saveTasks(); renderList(); renderCalendar(); renderStats(); showToast(localCount + ' taken slim ingepland ✨'); }
+      else showToast(err.message === 'no-key' ? 'Geen taken om in te plannen' : 'Kon vandaag niet verder plannen');
     }).finally(function(){
       btn.disabled = false; label.textContent = 'Plan mijn dag';
     });
@@ -3864,6 +3972,7 @@ li.task.done .t-text{color:var(--sub); text-decoration:line-through; font-weight
   setGreeting();
   setHomeHeroQuote();
   renderList();
+  if(!localStorage.getItem(LS_ONBOARDING)) document.getElementById('onboarding').classList.remove('hide');
   renderChat();
   renderAiSuggestions();
   renderStats();
