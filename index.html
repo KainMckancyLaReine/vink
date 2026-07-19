@@ -7,8 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Vink.">
-<meta name="theme-color" content="#F2F2F7" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#F2F2F7">
 <meta name="mobile-web-app-capable" content="yes">
 <link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22Vink%22%2C%22short_name%22%3A%22Vink%22%2C%22start_url%22%3A%22.%22%2C%22scope%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23F2F2F7%22%2C%22theme_color%22%3A%22%23F2F2F7%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22icons%2Ficon-192.png%22%2C%22sizes%22%3A%22192x192%22%2C%22type%22%3A%22image%2Fpng%22%7D%2C%7B%22src%22%3A%22icons%2Ficon-512.png%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fpng%22%7D%5D%7D">
 <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon-180.png">
@@ -54,30 +53,6 @@
   --font:-apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --ease:cubic-bezier(.32,.72,.28,1);
   --spring:cubic-bezier(.34,1.35,.5,1);
-}
-@media (prefers-color-scheme: dark){
-  :root{
-    --bg:#000000;
-    --card:#1C1C1E;
-    --card-2:#2A2A2D;
-    --text:#F5F5F7;
-    --sub:#98989F;
-    --sub-2:#6E6E75;
-    --sep:rgba(84,84,88,.40);
-    --sep-strong:rgba(84,84,88,.62);
-    --tint:#FF8A1E;
-    --tint-deep:#FF7A00;
-    --tint-soft:rgba(255,138,30,.15);
-    --danger-soft:rgba(255,69,58,.16);
-    --success-soft:rgba(48,193,88,.15);
-    --bubble-other:#26262A;
-    --bubble-other-text:#F0F0F2;
-    --glass:rgba(18,18,20,.78);
-    --glass-border:rgba(255,255,255,.08);
-    --sheet:#1C1C1E;
-    --shadow-card:0 1px 1px rgba(0,0,0,.25), 0 10px 26px -14px rgba(0,0,0,.6);
-    --shadow-float:0 14px 40px -10px rgba(0,0,0,.7);
-  }
 }
 *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
 html,body{height:100%; overflow:hidden; overscroll-behavior:none;}
@@ -167,7 +142,6 @@ input,textarea,select{font-family:inherit;}
   background:rgba(120,120,128,.14); border-radius:11px;
   position:relative;
 }
-@media (prefers-color-scheme: dark){ .seg{background:rgba(120,120,128,.22);} }
 .seg-btn{
   flex:1; border:none; background:transparent; position:relative; z-index:1;
   font-size:13.5px; font-weight:600; color:var(--text);
