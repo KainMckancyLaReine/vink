@@ -299,6 +299,13 @@ li.task.done .t-text{color:var(--sub); text-decoration:line-through; font-weight
 }
 .t-del:active{opacity:1; color:var(--danger);}
 .t-del svg{width:18px; height:18px;}
+li.task{cursor:pointer;}
+
+.check.is-done{background:var(--grad-orange); border-color:transparent; box-shadow:0 4px 10px rgba(255,122,0,.35);}
+.check.is-done svg{opacity:1;}
+.prio-row{display:flex; gap:8px; margin-top:12px;}
+.tl-block, .untimed-row{cursor:pointer;}
+.untimed-row:active, .tl-block:active{transform:scale(0.98);}
 
 .clear-link{
   display:block; margin:18px auto 0;
@@ -779,7 +786,8 @@ li.task.done .t-text{color:var(--sub); text-decoration:line-through; font-weight
   font-size:13px; font-weight:600; opacity:0; transition:.3s var(--ease-spring); z-index:80; pointer-events:none;
   max-width:82%; text-align:center; box-shadow:0 12px 30px rgba(0,0,0,.3);
 }
-#toast.show{opacity:1; transform:translateX(-50%) translateY(0) scale(1);}
+#toast.show{opacity:1; transform:translateX(-50%) translateY(0) scale(1); pointer-events:auto;}
+#toast .undo-btn{background:none; border:none; color:#FFC060; font-weight:800; font-size:13px; padding:0; flex-shrink:0; margin-left:2px;}
 
 /* ---------- Bottom navbar ---------- */
 .navbar{
@@ -1333,14 +1341,25 @@ li.task.done .t-text{color:var(--sub); text-decoration:line-through; font-weight
   </div>
 </nav>
 
-<!-- Quick add sheet -->
+<!-- Quick add / bewerk sheet -->
 <div class="overlay" id="overlay">
   <div class="sheet">
     <div class="sheet-head">
-      <h2>Nieuwe taak</h2>
+      <div style="display:flex; align-items:center; gap:10px; min-width:0;">
+        <button type="button" class="check" id="sheetDoneToggle" style="display:none; margin:0;" aria-label="markeer als klaar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+        </button>
+        <h2 id="sheetTitleText">Nieuwe taak</h2>
+      </div>
       <button id="closeSheet"><svg viewBox="0 0 24 24" fill="none" stroke="#1C1C1E" stroke-width="2.4" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>
     <textarea id="taskInput" placeholder="Wat wil je doen? Of typ een groter doel en laat AI het opsplitsen..."></textarea>
+
+    <div class="prio-row" id="prioChips">
+      <button type="button" class="chip" data-priority="laag">Laag</button>
+      <button type="button" class="chip" data-priority="normaal">Normaal</button>
+      <button type="button" class="chip" data-priority="hoog">Hoog</button>
+    </div>
 
     <div class="date-row">
       <input type="date" id="taskDate">
@@ -1359,6 +1378,7 @@ li.task.done .t-text{color:var(--sub); text-decoration:line-through; font-weight
 
     <div class="sheet-actions">
       <button class="btn-secondary" id="aiSplitBtn"><span class="icon-inline"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.5c.4 3.7 1.1 6.2 2.2 7.3S17.8 11.6 21.5 12c-3.7.4-6.2 1.1-7.3 2.2S12.4 17.8 12 21.5c-.4-3.7-1.1-6.2-2.2-7.3S6.2 12.4 2.5 12c3.7-.4 6.2-1.1 7.3-2.2S11.6 6.2 12 2.5z"/></svg></span><span id="aiSplitBtnLabel">Splits met AI</span></button>
+      <button class="btn-secondary" id="deleteTaskBtn" style="display:none; color:var(--danger); background:#FFE3E1;">Verwijderen</button>
       <button class="btn-primary" id="addTaskBtn">Toevoegen</button>
     </div>
   </div>
@@ -1458,10 +1478,34 @@ li.task.done .t-text{color:var(--sub); text-decoration:line-through; font-weight
   var toastEl = document.getElementById('toast');
   var toastTimer;
   function showToast(msg){
+    toastEl.style.display = '';
     toastEl.textContent = msg;
     toastEl.classList.add('show');
     clearTimeout(toastTimer);
     toastTimer = setTimeout(function(){ toastEl.classList.remove('show'); }, 2600);
+  }
+  function showUndoToast(msg, undoFn){
+    toastEl.textContent = '';
+    toastEl.style.display = 'flex';
+    toastEl.style.alignItems = 'center';
+    toastEl.style.justifyContent = 'center';
+    toastEl.style.gap = '10px';
+    var span = document.createElement('span');
+    span.textContent = msg;
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'undo-btn';
+    btn.textContent = 'Ongedaan maken';
+    btn.addEventListener('click', function(){
+      clearTimeout(toastTimer);
+      toastEl.classList.remove('show');
+      undoFn();
+    });
+    toastEl.appendChild(span);
+    toastEl.appendChild(btn);
+    toastEl.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ toastEl.classList.remove('show'); }, 4200);
   }
 
   /* ---------- Navigation ---------- */
@@ -1567,8 +1611,10 @@ li.task.done .t-text{color:var(--sub); text-decoration:line-through; font-weight
 
       var check = document.createElement('button');
       check.className = 'check';
+      check.type = 'button';
+      check.setAttribute('aria-label', 'markeer als klaar');
       check.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
-      check.addEventListener('click', function(){ toggleTask(t.id); });
+      check.addEventListener('click', function(e){ e.stopPropagation(); toggleTask(t.id); });
 
       var content = document.createElement('div');
       content.className = 't-content';
@@ -1608,12 +1654,15 @@ li.task.done .t-text{color:var(--sub); text-decoration:line-through; font-weight
 
       var del = document.createElement('button');
       del.className = 't-del';
+      del.type = 'button';
+      del.setAttribute('aria-label', 'taak verwijderen');
       del.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>';
-      del.addEventListener('click', function(){ removeTask(t.id); });
+      del.addEventListener('click', function(e){ e.stopPropagation(); removeTask(t.id); });
 
       li.appendChild(check);
       li.appendChild(content);
       li.appendChild(del);
+      li.addEventListener('click', function(){ openSheet(t); });
       listEl.appendChild(li);
     });
 
@@ -1812,6 +1861,7 @@ li.task.done .t-text{color:var(--sub); text-decoration:line-through; font-weight
       block.style.background = color.bg;
       block.style.color = color.text;
       block.innerHTML = '<div class="tl-name">' + escapeHtml(t.text) + '</div><span class="tl-time">' + escapeHtml(t.time) + '</span>';
+      block.addEventListener('click', function(){ openSheet(t); });
       eventsWrap.appendChild(block);
     });
   }
@@ -1833,6 +1883,7 @@ li.task.done .t-text{color:var(--sub); text-decoration:line-through; font-weight
       row.className = 'untimed-row' + (t.done ? ' done' : '');
       var dotColor = t.priority === 'hoog' ? 'var(--danger)' : t.priority === 'laag' ? 'var(--success)' : 'var(--orange)';
       row.innerHTML = '<span class="untimed-dot" style="background:' + dotColor + ';"></span><span class="txt">' + escapeHtml(t.text) + '</span>';
+      row.addEventListener('click', function(){ openSheet(t); });
       wrap.appendChild(row);
     });
   }
@@ -1873,17 +1924,41 @@ li.task.done .t-text{color:var(--sub); text-decoration:line-through; font-weight
     saveTasks(); renderList(); renderCalendar(); renderStats();
   }
   function removeTask(id){
-    tasks = tasks.filter(function(x){return x.id!==id;});
+    var idx = tasks.findIndex(function(x){return x.id===id;});
+    if(idx === -1) return;
+    var removed = tasks[idx];
+    tasks.splice(idx, 1);
+    saveTasks(); renderList(); renderCalendar(); renderStats();
+    showUndoToast('Taak verwijderd', function(){
+      tasks.splice(Math.min(idx, tasks.length), 0, removed);
+      saveTasks(); renderList(); renderCalendar(); renderStats();
+    });
+  }
+  function updateTask(id, text, opts, done){
+    var t = tasks.find(function(x){return x.id===id;});
+    if(!t) return;
+    t.text = text.trim();
+    t.date = (opts && opts.date) || t.date;
+    t.priority = (opts && opts.priority) || null;
+    t.time = (opts && opts.time) || null;
+    t.duration = t.time ? (parseInt(opts.duration, 10) || 60) : null;
+    if(!!done !== !!t.done){ t.done = !!done; t.completedAt = t.done ? Date.now() : null; }
     saveTasks(); renderList(); renderCalendar(); renderStats();
   }
   function clearDoneTasks(){
+    var removed = tasks.filter(function(x){return x.done;});
+    if(!removed.length) return;
     tasks = tasks.filter(function(x){return !x.done;});
     saveTasks(); renderList(); renderCalendar(); renderStats();
+    showUndoToast(removed.length + ' afgeronde taken verwijderd', function(){
+      tasks = tasks.concat(removed);
+      saveTasks(); renderList(); renderCalendar(); renderStats();
+    });
   }
 
-  document.querySelectorAll('.chip').forEach(function(c){
+  document.querySelectorAll('.chips .chip').forEach(function(c){
     c.addEventListener('click', function(){
-      document.querySelectorAll('.chip').forEach(function(x){x.classList.remove('active');});
+      document.querySelectorAll('.chips .chip').forEach(function(x){x.classList.remove('active');});
       c.classList.add('active');
       currentFilter = c.dataset.filter;
       renderList();
@@ -2032,6 +2107,27 @@ li.task.done .t-text{color:var(--sub); text-decoration:line-through; font-weight
   var taskTime = document.getElementById('taskTime');
   var taskDuration = document.getElementById('taskDuration');
   var taskDate = document.getElementById('taskDate');
+  var sheetTitleText = document.getElementById('sheetTitleText');
+  var sheetDoneToggle = document.getElementById('sheetDoneToggle');
+  var deleteTaskBtn = document.getElementById('deleteTaskBtn');
+  var prioChips = document.querySelectorAll('#prioChips .chip');
+
+  var editingTaskId = null;
+  var sheetPriority = null;
+  var sheetDone = false;
+
+  prioChips.forEach(function(c){
+    c.addEventListener('click', function(){
+      var val = c.dataset.priority;
+      sheetPriority = (sheetPriority === val) ? null : val;
+      prioChips.forEach(function(x){ x.classList.toggle('active', x.dataset.priority === sheetPriority); });
+    });
+  });
+
+  sheetDoneToggle.addEventListener('click', function(){
+    sheetDone = !sheetDone;
+    sheetDoneToggle.classList.toggle('is-done', sheetDone);
+  });
 
   timeToggle.addEventListener('click', function(){
     var showing = timeFields.style.display !== 'none';
@@ -2039,33 +2135,65 @@ li.task.done .t-text{color:var(--sub); text-decoration:line-through; font-weight
     timeToggleLabel.textContent = showing ? 'Tijdstip toevoegen' : 'Tijdstip verwijderen';
   });
 
-  function openSheet(){
+  function openSheet(task){
     overlay.classList.add('show');
-    taskInput.value = '';
-    timeFields.style.display = 'none';
-    timeToggleLabel.textContent = 'Tijdstip toevoegen';
-    taskTime.value = '09:00';
-    taskDuration.value = '60';
-    if(taskDate) taskDate.value = selectedDate || todayStr();
+    editingTaskId = task ? task.id : null;
+    sheetPriority = task ? (task.priority || null) : null;
+    sheetDone = task ? !!task.done : false;
+    taskInput.value = task ? task.text : '';
+    prioChips.forEach(function(x){ x.classList.toggle('active', x.dataset.priority === sheetPriority); });
+    timeFields.style.display = (task && task.time) ? 'flex' : 'none';
+    timeToggleLabel.textContent = (task && task.time) ? 'Tijdstip verwijderen' : 'Tijdstip toevoegen';
+    taskTime.value = (task && task.time) || '09:00';
+    taskDuration.value = (task && task.duration) ? String(task.duration) : '60';
+    if(taskDate) taskDate.value = (task && task.date) || selectedDate || todayStr();
+
+    if(task){
+      sheetTitleText.textContent = 'Taak bewerken';
+      addTaskBtn.textContent = 'Opslaan';
+      aiSplitBtn.style.display = 'none';
+      deleteTaskBtn.style.display = 'block';
+      sheetDoneToggle.style.display = 'flex';
+      sheetDoneToggle.classList.toggle('is-done', sheetDone);
+    } else {
+      sheetTitleText.textContent = 'Nieuwe taak';
+      addTaskBtn.textContent = 'Toevoegen';
+      aiSplitBtn.style.display = '';
+      deleteTaskBtn.style.display = 'none';
+      sheetDoneToggle.style.display = 'none';
+    }
     setTimeout(function(){ taskInput.focus(); }, 250);
   }
-  function hideSheet(){ overlay.classList.remove('show'); taskInput.blur(); }
+  function hideSheet(){ overlay.classList.remove('show'); taskInput.blur(); editingTaskId = null; }
 
-  navAdd.addEventListener('click', openSheet);
+  navAdd.addEventListener('click', function(){ openSheet(); });
   closeSheet.addEventListener('click', hideSheet);
   overlay.addEventListener('click', function(e){ if(e.target === overlay) hideSheet(); });
 
   addTaskBtn.addEventListener('click', function(){
     var v = taskInput.value.trim();
     if(!v) return;
-    var opts = { date: (taskDate && taskDate.value) || todayStr() };
+    var opts = { date: (taskDate && taskDate.value) || todayStr(), priority: sheetPriority || null };
     if(timeFields.style.display !== 'none' && taskTime.value){
       opts.time = taskTime.value;
       opts.duration = taskDuration.value;
     }
-    addTask(v, opts);
+    if(editingTaskId){
+      updateTask(editingTaskId, v, opts, sheetDone);
+      hideSheet();
+      showToast('Taak bijgewerkt');
+    } else {
+      addTask(v, opts);
+      hideSheet();
+      showToast('Taak toegevoegd');
+    }
+  });
+
+  deleteTaskBtn.addEventListener('click', function(){
+    if(!editingTaskId) return;
+    var idToDelete = editingTaskId;
     hideSheet();
-    showToast('Taak toegevoegd');
+    removeTask(idToDelete);
   });
 
   aiSplitBtn.addEventListener('click', function(){
